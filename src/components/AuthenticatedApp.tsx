@@ -695,17 +695,3 @@ export default function AuthenticatedApp() {
             {badges.filter(b => b.earned).length > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-zen-peach-400 text-white text-xs rounded-full flex items-center justify-center font-bold">
                 {badges.filter(
-              )
-              }
-          )
-          }
-  )
-}
-          )
-          }
-  )
-}
-          )
-          }
-  )
-}
