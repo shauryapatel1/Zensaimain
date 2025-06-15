@@ -42,6 +42,7 @@ interface JournalEntry {
   updated_at: string;
   photo_url?: string;
   photo_filename?: string;
+  title?: string;
 }
 
 interface GroupedEntries {
@@ -646,5 +647,226 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
                           {formatDate(dayEntries[0].created_at)}
                         </h3>
                         <p className="text-sm text-zen-sage-600 dark:text-gray-400">
-                          {dayEntries.length} {dayEntries.length === 1 ? 'entry' : 'entries'} • 
-                          Average mood:
+                          {dayEntries.length} {dayEntries.length === 1 ? 'entry' : 'entries'} • Average mood: {dayMoodData?.label}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Entries for this date */}
+                  <div className="space-y-4 ml-8">
+                    {dayEntries.map((entry, entryIndex) => {
+                      const entryMoodData = moods.find(m => m.level === getMoodLevel(entry.mood));
+                      const isExpanded = expandedEntry === entry.id;
+                      const isEditing = editingEntry?.id === entry.id;
+
+                      return (
+                        <motion.div
+                          key={entry.id}
+                          className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 dark:border-gray-600/20 overflow-hidden"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: entryIndex * 0.05 }}
+                          whileHover={{ scale: 1.01 }}
+                        >
+                          {isEditing ? (
+                            /* Edit Mode */
+                            <div className="p-6">
+                              <div className="flex items-center justify-between mb-4">
+                                <h4 className="font-display font-semibold text-zen-sage-800 dark:text-gray-200">
+                                  Edit Entry
+                                </h4>
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={handleSaveEdit}
+                                    className="p-2 text-zen-mint-600 hover:text-zen-mint-700 hover:bg-zen-mint-100 dark:hover:bg-zen-mint-900/30 rounded-lg transition-colors"
+                                  >
+                                    <Save className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingEntry(null)}
+                                    className="p-2 text-zen-sage-500 hover:text-zen-sage-700 hover:bg-zen-sage-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
+                                    Title (optional)
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={editTitle}
+                                    onChange={(e) => setEditTitle(e.target.value)}
+                                    placeholder="Add a title to your entry..."
+                                    className="w-full px-4 py-2 border border-zen-sage-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent bg-white/70 dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
+                                    How are you feeling?
+                                  </label>
+                                  <MoodSelector
+                                    selectedMood={editMood}
+                                    onMoodSelect={setEditMood}
+                                    size="md"
+                                    layout="horizontal"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
+                                    Your thoughts
+                                  </label>
+                                  <textarea
+                                    value={editContent}
+                                    onChange={(e) => setEditContent(e.target.value)}
+                                    rows={6}
+                                    className="w-full px-4 py-3 border border-zen-sage-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent bg-white/70 dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200 resize-none"
+                                    placeholder="What's on your mind?"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            /* View Mode */
+                            <div className="p-6">
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-center space-x-3">
+                                  <div className="text-2xl">{entryMoodData?.emoji}</div>
+                                  <div>
+                                    <div className="flex items-center space-x-2">
+                                      <span className="text-sm font-medium text-zen-sage-600 dark:text-gray-400">
+                                        {formatTime(entry.created_at)}
+                                      </span>
+                                      <span className="text-xs text-zen-sage-400 dark:text-gray-500">
+                                        {entryMoodData?.label}
+                                      </span>
+                                    </div>
+                                    {entry.title && (
+                                      <h4 className="font-display font-semibold text-zen-sage-800 dark:text-gray-200 mt-1">
+                                        {entry.title}
+                                      </h4>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={() => handleEditEntry(entry)}
+                                    className="p-2 text-zen-sage-500 hover:text-zen-sage-700 hover:bg-zen-sage-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                  >
+                                    <Edit3 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteEntry(entry.id)}
+                                    className="p-2 text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => toggleEntryExpansion(entry.id)}
+                                    className="p-2 text-zen-sage-500 hover:text-zen-sage-700 hover:bg-zen-sage-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                  >
+                                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className={`text-zen-sage-700 dark:text-gray-300 leading-relaxed ${
+                                isExpanded ? '' : 'line-clamp-3'
+                              }`}>
+                                {entry.content}
+                              </div>
+
+                              {entry.photo_url && (
+                                <div className="mt-4">
+                                  <img
+                                    src={entry.photo_url}
+                                    alt="Journal entry"
+                                    className="rounded-xl max-w-full h-auto shadow-md"
+                                  />
+                                </div>
+                              )}
+
+                              {!isExpanded && entry.content.length > 150 && (
+                                <button
+                                  onClick={() => toggleEntryExpansion(entry.id)}
+                                  className="mt-3 text-zen-mint-600 hover:text-zen-mint-700 text-sm font-medium"
+                                >
+                                  Read more...
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <motion.div
+            className="mt-12 flex justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              
+              <div className="flex space-x-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === page
+                        ? 'bg-zen-mint-400 text-white'
+                        : 'text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 hover:bg-zen-sage-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Upsell Modal */}
+      {isUpsellModalOpen && upsellContent && (
+        <UpsellModal
+          isOpen={isUpsellModalOpen}
+          onClose={hideUpsellModal}
+          featureName={upsellContent.featureName}
+          featureDescription={upsellContent.featureDescription}
+        />
+      )}
+    </div>
+  );
+}
