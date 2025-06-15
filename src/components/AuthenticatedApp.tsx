@@ -21,6 +21,13 @@ import ToastNotification, { ToastType } from './ToastNotification';
 import { MoodLevel } from '../types';
 import { moods } from '../data/moods';
 
+/**
+ * Renders the main authenticated user interface for the journaling application, providing mood tracking, AI-powered mood analysis, daily prompts, affirmations, mood quotes, badge notifications, and access to premium features.
+ *
+ * Displays different views including the journal, history, settings, badges, and premium page, with contextual feedback, animated avatar, and voice synthesis for affirmations. Handles journal entry submission, mood selection, AI mood suggestions, photo uploads, and user streak tracking.
+ *
+ * @returns The authenticated journaling application interface for the current user.
+ */
 export default function AuthenticatedApp() {
   const { user, logout } = useAuth();
   const { 

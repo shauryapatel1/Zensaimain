@@ -19,6 +19,20 @@ interface LottieAvatarProps {
   className?: string;
 }
 
+/**
+ * Renders an animated avatar using Lottie and Framer Motion, visually reflecting mood and activity.
+ *
+ * The avatar animation and visual effects adapt based on the provided mood level and variant, with additional sparkles and glow for higher moods. Supports custom sizing, animation toggling, accessibility labeling, and external CSS class extension.
+ *
+ * @param mood - Mood level (1–5) that influences the avatar's animation and visual styling.
+ * @param size - Size of the avatar ('sm', 'md', or 'lg').
+ * @param variant - Animation variant representing the avatar's activity or state.
+ * @param animate - Whether to animate the avatar container with subtle motion.
+ * @param className - Additional CSS classes to apply to the avatar container.
+ * @param aria-label - Custom accessibility label for the avatar.
+ *
+ * @returns A React element displaying the animated avatar with mood-based effects.
+ */
 export default function LottieAvatar({ 
   mood = 3, 
   size = 'md', 

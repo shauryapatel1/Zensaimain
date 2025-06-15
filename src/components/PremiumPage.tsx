@@ -10,6 +10,13 @@ interface PremiumPageProps {
   onBack: () => void;
 }
 
+/**
+ * Renders the premium subscription page, allowing users to view their current subscription status, compare premium plans, and initiate a subscription purchase.
+ *
+ * Displays animated backgrounds, plan selection toggles, detailed plan features, premium benefits, and frequently asked questions. Integrates with Supabase and Stripe to handle subscription checkout and manages loading and error states during the process.
+ *
+ * @param onBack - Callback invoked when the user clicks the back navigation button.
+ */
 export default function PremiumPage({ onBack }: PremiumPageProps) {
   const { user } = useAuth();
   const { profile } = useJournal();

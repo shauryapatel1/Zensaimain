@@ -5,6 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 import LottieAvatar from './LottieAvatar';
 
+/**
+ * Renders the Zensai landing page with animated sections introducing the app's features, benefits, testimonials, and calls to action.
+ *
+ * Includes navigation, hero, features, benefits, testimonials, and CTA sections, each with interactive and animated elements to engage users and encourage sign-up.
+ */
 export default function LandingPage() {
   const navigate = useNavigate();
 

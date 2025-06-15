@@ -7,6 +7,13 @@ import { useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 import LottieAvatar from './LottieAvatar';
 
+/**
+ * Renders the authentication screen for login and signup, providing animated UI, form validation, and error handling.
+ *
+ * Displays a form that allows users to sign in or create a new account, with animated transitions, field-level validation, and contextual success or error messages. Supports toggling between login and signup modes, password visibility, and navigation back to the landing page.
+ *
+ * @returns The authentication screen React component.
+ */
 export default function AuthScreen() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);

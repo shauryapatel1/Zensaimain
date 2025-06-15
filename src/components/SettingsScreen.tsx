@@ -41,6 +41,13 @@ interface UserProfile {
   updated_at: string;
 }
 
+/**
+ * Displays and manages the user settings screen, allowing users to view and update their profile, preferences, subscription, data export, and account actions.
+ *
+ * Provides interfaces for editing display name and journaling goals, toggling dark mode and notifications, managing subscription status, exporting journal data, signing out, and deleting the account. Includes confirmation modals for sensitive actions and displays feedback messages for success or error states.
+ *
+ * @param onBack - Callback invoked when the user navigates back from the settings screen.
+ */
 export default function SettingsScreen({ onBack }: SettingsScreenProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
