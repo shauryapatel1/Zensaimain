@@ -56,6 +56,7 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
   const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
   const [editContent, setEditContent] = useState('');
+  const [editTitle, setEditTitle] = useState('');
   const [editMood, setEditMood] = useState<MoodLevel>(3);
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
@@ -178,6 +179,7 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
   const handleEditEntry = (entry: JournalEntry) => {
     setEditingEntry(entry);
     setEditContent(entry.content);
+    setEditTitle(entry.title || '');
     setEditMood(getMoodLevel(entry.mood));
     setSelectedEntry(null);
   };
@@ -186,10 +188,11 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
     if (!editingEntry) return;
 
     try {
-      const result = await updateEntry(editingEntry.id, editContent, editMood);
+      const result = await updateEntry(editingEntry.id, editContent, editTitle || null, editMood);
       if (result.success) {
         setEditingEntry(null);
         setEditContent('');
+        setEditTitle('');
       }
     } catch (err) {
       console.error('Failed to update entry:', err);
@@ -567,6 +570,11 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
                             <div className="flex items-center space-x-3">
                               <div className="text-2xl">{entryMoodData?.emoji}</div>
                               <div>
+                                {entry.title && (
+                                  <h4 className="font-medium text-zen-sage-800 dark:text-gray-200 mb-1">
+                                    {entry.title}
+                                  </h4>
+                                )}
                                 <div className="flex items-center space-x-2">
                                   <Clock className="w-4 h-4 text-zen-sage-400 dark:text-gray-500" />
                                   <span className="text-sm font-medium text-zen-sage-600 dark:text-gray-400">
@@ -715,6 +723,11 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
                     {moods.find(m => m.level === getMoodLevel(selectedEntry.mood))?.emoji}
                   </div>
                   <div>
+                    {selectedEntry.title && (
+                      <h2 className="text-xl font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-1">
+                        {selectedEntry.title}
+                      </h2>
+                    )}
                     <h2 className="text-xl font-display font-bold text-zen-sage-800 dark:text-gray-200">
                       {formatDate(selectedEntry.created_at)}
                     </h2>
@@ -790,6 +803,20 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
               <h2 className="text-xl font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-6">
                 Edit Journal Entry
               </h2>
+              
+              {/* Title Editor */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-3">
+                  Entry Title (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full px-4 py-3 border border-zen-sage-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent bg-white dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200"
+                  placeholder="Give your entry a title..."
+                />
+              </div>
               
               {/* Mood Selector */}
               <div className="mb-6">

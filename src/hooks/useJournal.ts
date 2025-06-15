@@ -10,6 +10,7 @@ interface JournalEntry {
   mood: string;
   photo_url: string | null;
   photo_filename: string | null;
+  title: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -164,6 +165,7 @@ export function useJournal() {
 
   const addEntry = async (
     content: string, 
+    title: string | null,
     mood: MoodLevel, 
     photoFile?: File
   ): Promise<{ success: boolean; error?: string }> => {
@@ -224,6 +226,7 @@ export function useJournal() {
         .insert({
           user_id: user.id,
           content: content.trim(),
+          title: title?.trim() || null,
           mood: moodString,
           photo_url: photoUrl,
           photo_filename: photoFilename
@@ -289,6 +292,7 @@ export function useJournal() {
   const updateEntry = async (
     entryId: string, 
     content: string, 
+    title: string | null,
     mood: MoodLevel, 
     photoFile?: File,
     removePhoto?: boolean
@@ -376,6 +380,7 @@ export function useJournal() {
       // Prepare update data
       const updateData: any = {
         content: content.trim(),
+        title: title?.trim() || null,
         mood: moodString,
         updated_at: new Date().toISOString()
       };
@@ -404,6 +409,7 @@ export function useJournal() {
           ? { 
               ...entry, 
               content: content.trim(), 
+              title: title?.trim() || null,
               mood: moodString, 
               updated_at: new Date().toISOString(),
               ...(removePhoto || photoFile ? { photo_url: photoUrl, photo_filename: photoFilename } : {})

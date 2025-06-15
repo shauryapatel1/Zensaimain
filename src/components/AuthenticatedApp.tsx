@@ -38,6 +38,7 @@ export default function AuthenticatedApp() {
   const [currentView, setCurrentView] = useState<'journal' | 'history' | 'settings' | 'badges' | 'premium'>('journal');
   const [selectedMood, setSelectedMood] = useState<MoodLevel>();
   const [journalEntry, setJournalEntry] = useState('');
+  const [entryTitle, setEntryTitle] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -251,7 +252,7 @@ export default function AuthenticatedApp() {
       setZenoVariant('typing'); // Show typing animation while saving
       
       // Save to database
-      const result = await addEntry(journalEntry.trim(), finalMood, selectedPhoto || undefined);
+      const result = await addEntry(journalEntry.trim(), entryTitle, finalMood, selectedPhoto || undefined);
       
       if (!result.success) {
         throw new Error(result.error || 'Failed to save your entry');
@@ -307,6 +308,7 @@ export default function AuthenticatedApp() {
       setSuccessMessage(message);
 
       setJournalEntry('');
+      setEntryTitle('');
       setSelectedMood(undefined);
       setSelectedPhoto(null);
       setAiDetectedMood(null);
@@ -843,6 +845,22 @@ export default function AuthenticatedApp() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
         >
+          {/* Entry Title */}
+          <div className="mb-6">
+            <h3 className="font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center">
+              <BookOpen className="w-5 h-5 text-zen-mint-500 mr-2" />
+              Entry Title (Optional)
+            </h3>
+            <input
+              type="text"
+              value={entryTitle}
+              onChange={(e) => setEntryTitle(e.target.value)}
+              placeholder="Give your entry a title..."
+              className="w-full p-4 bg-white/80 dark:bg-gray-700/80 border border-zen-mint-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent transition-all duration-300 text-zen-sage-800 dark:text-gray-200 placeholder-zen-sage-400 dark:placeholder-gray-500"
+              disabled={isSubmitting}
+            />
+          </div>
+
           {/* Mood Selector */}
           <div className="mb-6">
             <h3 className="font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center">
