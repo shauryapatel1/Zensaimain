@@ -21,7 +21,6 @@ import {
 import { useJournal } from '../hooks/useJournal';
 import { useAuth } from '../contexts/AuthContext';
 import Logo from './Logo';
-import { usePremium } from '../hooks/usePremium';
 import LottieAvatar from './LottieAvatar';
 import MoodSelector from './MoodSelector';
 import { MoodLevel } from '../types';
@@ -47,7 +46,6 @@ interface GroupedEntries {
 
 export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
   const { user } = useAuth();
-  const { isPremium, showUpsellModal } = usePremium();
   const { entries, isLoading, error, deleteEntry, updateEntry } = useJournal();
   
   // State management
@@ -172,19 +170,10 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
   // Pagination
   const groupedDates = Object.keys(groupedEntries);
   const totalPages = Math.ceil(groupedDates.length / ENTRIES_PER_PAGE);
-  
-  // Limit history for free users
-  const limitedGroupedDates = isPremium 
-    ? groupedDates 
-    : groupedDates.slice(0, Math.min(30, groupedDates.length));
-  
-  const paginatedDates = limitedGroupedDates.slice(
+  const paginatedDates = groupedDates.slice(
     (currentPage - 1) * ENTRIES_PER_PAGE,
     currentPage * ENTRIES_PER_PAGE
   );
-  
-  // Check if there are older entries that free users can't access
-  const hasOlderEntries = !isPremium && groupedDates.length > 30;
 
   // Event handlers
   const handleEditEntry = (entry: JournalEntry) => {
@@ -667,39 +656,9 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
             })
           )}
         </div>
-        
-        {/* Free Tier Limit Message */}
-        {hasOlderEntries && !isPremium && (
-          <motion.div
-            className="mt-8 bg-gradient-to-r from-zen-lavender-50 to-zen-mint-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-6 border border-zen-lavender-200 dark:border-gray-600 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="flex flex-col items-center space-y-4">
-              <div className="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-full">
-                <Crown className="w-6 h-6 text-yellow-500" />
-              </div>
-              <h3 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200">
-                Unlock Your Full Journal History
-              </h3>
-              <p className="text-zen-sage-600 dark:text-gray-400 max-w-md mx-auto">
-                Free users can access their 30 most recent journal entries. Upgrade to Premium to unlock your complete journal history.
-              </p>
-              <button
-                onClick={() => showUpsellModal(
-                  'Full Journal History',
-                  'Access your complete journaling history without any time limitations.'
-                )}
-                className="px-6 py-2 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white rounded-xl hover:from-zen-mint-500 hover:to-zen-mint-600 transition-colors shadow-md"
-              >
-                Upgrade to Premium
-              </button>
-            </div>
-          </motion.div>
-        )}
 
         {/* Pagination */}
-        {limitedGroupedDates.length > ENTRIES_PER_PAGE && (
+        {totalPages > 1 && (
           <motion.div
             className="flex justify-center items-center space-x-4 mt-8"
             initial={{ opacity: 0 }}
@@ -715,7 +674,7 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
             </button>
             
             <div className="flex space-x-2">
-              {Array.from({ length: Math.ceil(limitedGroupedDates.length / ENTRIES_PER_PAGE) }, (_, i) => i + 1).map(page => (
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
@@ -731,72 +690,14 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
             </div>
             
             <button
-              onClick={() => setCurrentPage(Math.min(Math.ceil(limitedGroupedDates.length / ENTRIES_PER_PAGE), currentPage + 1))}
-              disabled={currentPage === Math.ceil(limitedGroupedDates.length / ENTRIES_PER_PAGE)}
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
               className="px-4 py-2 bg-white/80 dark:bg-gray-800/80 text-zen-sage-600 dark:text-gray-400 rounded-xl hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Next
             </button>
           </motion.div>
         )}
-        
-        {/* Advanced Analytics Teaser (Premium Feature) */}
-        <motion.div
-          className="mt-12 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-600/20">
-            <h2 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center space-x-2">
-              <BarChart3 className="w-5 h-5 text-zen-mint-500" />
-              <span>Advanced Analytics</span>
-              <span className="text-xs font-normal text-white bg-yellow-500 px-2 py-0.5 rounded-full">
-                Premium
-              </span>
-            </h2>
-            
-            {isPremium ? (
-              <div className="bg-zen-mint-50 dark:bg-gray-700 rounded-2xl p-6 text-center">
-                <p className="text-zen-sage-700 dark:text-gray-300 mb-4">
-                  Advanced analytics and insights are coming soon to Premium users!
-                </p>
-                <p className="text-zen-sage-600 dark:text-gray-400 text-sm">
-                  We're working on detailed mood trends, sentiment analysis, and AI-generated summaries of your emotional patterns.
-                </p>
-              </div>
-            ) : (
-              <div className="bg-gradient-to-r from-zen-lavender-50 to-zen-mint-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-6 text-center">
-                <p className="text-zen-sage-700 dark:text-gray-300 mb-4">
-                  Unlock advanced analytics with Zensai Premium
-                </p>
-                <ul className="text-left mb-6 space-y-2">
-                  <li className="flex items-start space-x-2">
-                    <span className="text-zen-mint-500 mt-1">•</span>
-                    <span className="text-zen-sage-600 dark:text-gray-400">Detailed mood trends over time</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-zen-mint-500 mt-1">•</span>
-                    <span className="text-zen-sage-600 dark:text-gray-400">AI-generated insights about your emotional patterns</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-zen-mint-500 mt-1">•</span>
-                    <span className="text-zen-sage-600 dark:text-gray-400">Personalized recommendations for mindfulness practices</span>
-                  </li>
-                </ul>
-                <button
-                  onClick={() => showUpsellModal(
-                    'Advanced Analytics',
-                    'Gain deeper insights into your emotional patterns with detailed mood trends and AI-generated summaries.'
-                  )}
-                  className="px-6 py-2 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white rounded-xl hover:from-zen-mint-500 hover:to-zen-mint-600 transition-colors shadow-md"
-                >
-                  Upgrade to Premium
-                </button>
-              </div>
-            )}
-          </div>
-        </motion.div>
       </div>
 
       {/* Entry Detail Modal */}

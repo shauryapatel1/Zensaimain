@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { usePremium } from './usePremium';
 
 interface PromptResponse {
   success: boolean;
@@ -13,7 +12,6 @@ interface PromptResponse {
 
 export function usePromptGenerator() {
   const { user } = useAuth();
-  const { isPremium, hasReachedDailyLimit, incrementUsageCounter } = usePremium();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,18 +21,6 @@ export function usePromptGenerator() {
   }): Promise<string | null> => {
     setIsLoading(true);
     setError(null);
-    
-    // Check if user has reached daily limit for prompts
-    if (!isPremium && hasReachedDailyLimit('prompt')) {
-      setError('You\'ve reached your daily limit for AI prompts. Upgrade to Premium for unlimited prompts!');
-      setIsLoading(false);
-      return null;
-    }
-    
-    // Increment usage counter for free users
-    if (!isPremium) {
-      incrementUsageCounter('prompt');
-    }
 
     try {
       const { data, error: functionError } = await supabase.functions.invoke('generate-prompt', {

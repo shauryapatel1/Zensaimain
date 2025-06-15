@@ -9,7 +9,6 @@ import { useMoodAnalyzer } from '../hooks/useMoodAnalyzer';
 import { useAffirmationGenerator } from '../hooks/useAffirmationGenerator';
 import { useMoodQuoteGenerator } from '../hooks/useMoodQuoteGenerator';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
-import { usePremium } from '../hooks/usePremium';
 import LottieAvatar from './LottieAvatar';
 import MoodSelector from './MoodSelector';
 import PhotoUpload from './PhotoUpload';
@@ -17,7 +16,6 @@ import MoodHistoryScreen from './MoodHistoryScreen';
 import SettingsScreen from './SettingsScreen';
 import BadgesScreen from './BadgesScreen';
 import PremiumPage from './PremiumPage';
-import UpsellModal from './UpsellModal';
 import VoiceButton from './VoiceButton';
 import ToastNotification, { ToastType } from './ToastNotification';
 import { MoodLevel } from '../types';
@@ -60,20 +58,6 @@ export default function AuthenticatedApp() {
   const [showMoodQuote, setShowMoodQuote] = useState(false);
   const [isTextareaFocused, setIsTextareaFocused] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
-  
-  // Premium features state
-  const { 
-    isPremium, 
-    isPremiumPlus,
-    isUpsellModalOpen,
-    featureName,
-    featureDescription,
-    showUpsellModal,
-    hideUpsellModal,
-    hasReachedDailyLimit,
-    incrementUsageCounter,
-    getRemainingUses
-  } = usePremium();
   
   // Toast notification state
   const [toastVisible, setToastVisible] = useState(false);
@@ -212,21 +196,6 @@ export default function AuthenticatedApp() {
   const handleGenerateNewPrompt = async () => {
     setIsLoadingPrompt(true);
     setPromptError(null);
-
-    // Check if user has reached daily limit for prompts
-    if (!isPremium && hasReachedDailyLimit('prompt')) {
-      setIsLoadingPrompt(false);
-      showUpsellModal(
-        'Daily Prompts',
-        'Get unlimited AI-generated prompts to inspire your journaling practice.'
-      );
-      return;
-    }
-    
-    // Increment usage counter for free users
-    if (!isPremium) {
-      incrementUsageCounter('prompt');
-    }
     
     try {
       const moodString = selectedMood ? getMoodString(selectedMood) : undefined;
@@ -282,15 +251,6 @@ export default function AuthenticatedApp() {
       
       setZenoVariant('typing'); // Show typing animation while saving
       
-      // Check if user can add a photo (premium feature)
-      if (selectedPhoto && !isPremium) {
-        showUpsellModal(
-          'Photo Attachments',
-          'Add photos to your journal entries to capture and remember special moments.'
-        );
-        return;
-      }
-      
       // Save to database
       const result = await addEntry(journalEntry.trim(), entryTitle, finalMood, selectedPhoto || undefined);
       
@@ -300,20 +260,6 @@ export default function AuthenticatedApp() {
 
       // Generate affirmation after successful save
       try {
-        // Check if user has reached daily limit for affirmations
-        if (!isPremium && hasReachedDailyLimit('affirmation')) {
-          const fallbackAffirmation = getFallbackAffirmation(finalMood);
-          setAffirmation(fallbackAffirmation);
-          setShowAffirmation(true);
-          setAffirmationError('You\'ve reached your daily limit for AI affirmations. Upgrade to Premium for unlimited affirmations!');
-          return;
-        }
-        
-        // Increment usage counter for free users
-        if (!isPremium) {
-          incrementUsageCounter('affirmation');
-        }
-        
         const generatedAffirmation = await generateAffirmation(journalEntry.trim(), finalMood);
         
         if (generatedAffirmation) {
@@ -332,12 +278,7 @@ export default function AuthenticatedApp() {
       }
 
       // Generate mood quote for the final mood
-      if (isPremium || !hasReachedDailyLimit('mood-quote')) {
-        if (!isPremium) {
-          incrementUsageCounter('mood-quote');
-        }
-        generateMoodQuoteForMood(finalMood, journalEntry.trim());
-      }
+      generateMoodQuoteForMood(finalMood, journalEntry.trim());
 
       // Get updated streak for success message
       const newStreak = getStreak();
@@ -397,20 +338,10 @@ export default function AuthenticatedApp() {
     }
 
     const timeoutId = setTimeout(async () => {
-      // Check if user has reached daily limit for mood analysis
-      if (!isPremium && hasReachedDailyLimit('mood-analysis')) {
-        return;
-      }
-      
       const detectedMood = await analyzeMood(journalEntry);
       if (detectedMood && detectedMood !== selectedMood) {
         setAiDetectedMood(detectedMood);
         setShowMoodSuggestion(true);
-        
-        // Increment usage counter for free users
-        if (!isPremium) {
-          incrementUsageCounter('mood-analysis');
-        }
       }
     }, 2000); // Wait 2 seconds after user stops typing
 
@@ -448,20 +379,6 @@ export default function AuthenticatedApp() {
 
   const generateMoodQuoteForMood = async (mood: MoodLevel, entry?: string) => {
     try {
-      // Check if user has reached daily limit for mood quotes
-      if (!isPremium && hasReachedDailyLimit('mood-quote')) {
-        showUpsellModal(
-          'Mood Quotes',
-          'Get unlimited personalized quotes that resonate with your current mood.'
-        );
-        return;
-      }
-      
-      // Increment usage counter for free users
-      if (!isPremium) {
-        incrementUsageCounter('mood-quote');
-      }
-      
       const quote = await generateMoodQuote(mood, entry);
       if (quote) {
         setMoodQuote(quote);
@@ -729,14 +646,6 @@ export default function AuthenticatedApp() {
         badge={toastBadge}
         onClose={() => setToastVisible(false)}
         duration={toastType === 'badge' ? 8000 : 5000}
-      />
-      
-      {/* Premium Upsell Modal */}
-      <UpsellModal
-        isOpen={isUpsellModalOpen}
-        onClose={hideUpsellModal}
-        featureName={featureName}
-        featureDescription={featureDescription}
       />
 
       {/* Success Message */}
@@ -1008,11 +917,6 @@ export default function AuthenticatedApp() {
           {/* Photo Upload */}
           <div className="mb-6">
             <PhotoUpload
-              isPremiumUser={isPremium}
-              onUpsellTrigger={() => showUpsellModal(
-                'Photo Attachments',
-                'Add photos to your journal entries to capture and remember special moments.'
-              )}
               selectedPhoto={selectedPhoto}
               onPhotoSelect={setSelectedPhoto}
               disabled={isSubmitting}
@@ -1058,11 +962,6 @@ export default function AuthenticatedApp() {
             <div className="flex items-center space-x-4">
               {affirmation && (
                 <VoiceButton
-                  isPremiumUser={isPremium}
-                  onUpsellTrigger={() => showUpsellModal(
-                    'Voice Synthesis',
-                    'Listen to your affirmations with our soothing voice synthesis technology.'
-                  )}
                   text={affirmation}
                   onPlay={() => generateAndPlaySpeech(affirmation)}
                   onStop={stopSpeech}
@@ -1116,30 +1015,6 @@ export default function AuthenticatedApp() {
                 <p className="text-zen-peach-700 dark:text-zen-peach-300 text-sm">
                   You've already journaled today! Feel free to add another entry to continue your reflection.
                 </p>
-              </div>
-            </motion.div>
-          )}
-          
-          {/* Free Tier Usage Limits */}
-          {!isPremium && (
-            <motion.div
-              className="mt-4 bg-gradient-to-r from-zen-lavender-50 to-zen-mint-50 dark:from-gray-800 dark:to-gray-700 border border-zen-lavender-200 dark:border-gray-600 rounded-xl p-4"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Crown className="w-5 h-5 text-yellow-500" />
-                  <p className="text-zen-sage-700 dark:text-gray-300 text-sm">
-                    Free tier: {getRemainingUses('affirmation')}/2 AI affirmations remaining today
-                  </p>
-                </div>
-                <button
-                  onClick={() => setCurrentView('premium')}
-                  className="text-sm text-zen-mint-600 hover:text-zen-mint-700 font-medium"
-                >
-                  Upgrade
-                </button>
               </div>
             </motion.div>
           )}

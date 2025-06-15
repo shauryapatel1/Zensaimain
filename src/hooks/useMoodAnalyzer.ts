@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { usePremium } from './usePremium';
 import { MoodLevel } from '../types';
 
 interface MoodAnalysisResponse {
@@ -15,7 +14,6 @@ interface MoodAnalysisResponse {
 
 export function useMoodAnalyzer() {
   const { user } = useAuth();
-  const { isPremium, hasReachedDailyLimit, incrementUsageCounter } = usePremium();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,21 +23,10 @@ export function useMoodAnalyzer() {
       return null;
     }
 
-    // Check if user has reached daily limit for mood analysis
-    if (!isPremium && hasReachedDailyLimit('mood-analysis')) {
-      setError('You\'ve reached your daily limit for AI mood analysis. Upgrade to Premium for unlimited analysis!');
-      return null;
-    }
-    
     setIsAnalyzing(true);
     setError(null);
 
     try {
-      // Increment usage counter for free users
-      if (!isPremium) {
-        incrementUsageCounter('mood-analysis');
-      }
-      
       const { data, error: functionError } = await supabase.functions.invoke('analyze-mood', {
         body: {
           entry: journalEntry.trim(),

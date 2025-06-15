@@ -3,27 +3,21 @@ import { motion } from 'framer-motion';
 import { Volume2, VolumeX, Loader2 } from 'lucide-react';
 
 interface VoiceButtonProps {
-  text?: string;
   isGenerating: boolean;
   isPlaying: boolean;
   onPlay: () => void;
   onStop: () => void;
   disabled?: boolean;
-  isPremiumUser?: boolean;
-  onUpsellTrigger?: () => void;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
 
 export default function VoiceButton({
-  text,
   isGenerating,
   isPlaying,
   onPlay,
   onStop,
   disabled = false,
-  isPremiumUser = true,
-  onUpsellTrigger,
   size = 'md',
   className = ''
 }: VoiceButtonProps) {
@@ -40,11 +34,6 @@ export default function VoiceButton({
   };
 
   const handleClick = () => {
-    if (!isPremiumUser && onUpsellTrigger) {
-      onUpsellTrigger();
-      return;
-    }
-    
     if (isPlaying) {
       onStop();
     } else {
@@ -71,10 +60,10 @@ export default function VoiceButton({
   return (
     <motion.button
       onClick={handleClick}
-      disabled={disabled || isGenerating || (!isPremiumUser && !onUpsellTrigger)}
+      disabled={disabled || isGenerating}
       className={`
         ${sizeClasses[size]}
-        ${isPremiumUser ? 'bg-zen-peach-400 hover:bg-zen-peach-500' : 'bg-gray-400 hover:bg-gray-500'} 
+        bg-zen-peach-400 hover:bg-zen-peach-500 
         text-white rounded-full 
         transition-all duration-300 
         shadow-lg hover:shadow-xl
@@ -86,7 +75,6 @@ export default function VoiceButton({
       whileTap={!disabled && !isGenerating ? { scale: 0.95 } : {}}
       title={getTooltip()}
       aria-label={getTooltip()}
-      data-premium-feature={!isPremiumUser}
     >
       {getIcon()}
       
@@ -104,11 +92,6 @@ export default function VoiceButton({
             ease: "easeInOut"
           }}
         />
-      )}
-      
-      {/* Premium indicator */}
-      {!isPremiumUser && (
-        <span className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full border border-white" />
       )}
     </motion.button>
   );
