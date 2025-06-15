@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { usePremium } from './usePremium';
 import { MoodLevel } from '../types';
 
 interface JournalEntry {
@@ -24,6 +23,9 @@ interface Profile {
   last_entry_date: string | null;
   journaling_goal_frequency: number;
   total_badges_earned: number;
+  subscription_status: string;
+  subscription_tier: string;
+  subscription_expires_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,12 +46,15 @@ interface Badge {
 
 export function useJournal() {
   const { user, isAuthenticated } = useAuth();
-  const { isPremium } = usePremium();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [badges, setBadges] = useState<Badge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Calculate premium status directly from profile
+  const isPremium = profile?.subscription_status === 'premium' && 
+    (!profile?.subscription_expires_at || new Date(profile.subscription_expires_at) > new Date());
 
   // Load user profile and entries
   useEffect(() => {
@@ -94,7 +99,11 @@ export function useJournal() {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
-      if (!isPremium) {
+      // Check premium status from the loaded profile data
+      const userIsPremium = profileData?.subscription_status === 'premium' && 
+        (!profileData?.subscription_expires_at || new Date(profileData.subscription_expires_at) > new Date());
+      
+      if (!userIsPremium) {
         // Get entries from the last 30 days or the most recent 30 entries
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -104,12 +113,7 @@ export function useJournal() {
           .limit(30);
       }
 
-      const { data: entriesData, error: entriesError } = await supabase
-        .from('journal_entries')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(100);
+      const { data: entriesData, error: entriesError } = await query;
 
       if (entriesError) {
         console.error('Error loading entries:', entriesError);
@@ -511,6 +515,7 @@ export function useJournal() {
     badges,
     isLoading,
     error,
+    isPremium,
     addEntry,
     updateEntry,
     deleteEntry,
