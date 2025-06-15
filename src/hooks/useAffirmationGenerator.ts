@@ -12,6 +12,19 @@ interface AffirmationResponse {
   timestamp: string;
 }
 
+/**
+ * React hook for generating affirmations based on a user's journal entry and mood.
+ *
+ * Provides an asynchronous function to request an affirmation, along with loading, error, and daily usage state. Enforces daily usage limits for non-premium users.
+ *
+ * @returns An object containing:
+ * - `generateAffirmation`: Function to generate an affirmation from a journal entry and mood.
+ * - `isGenerating`: Whether an affirmation is currently being generated.
+ * - `error`: Error message if generation fails, or `null`.
+ * - `dailyUsageCount`: Number of times the affirmation generator has been used today.
+ *
+ * @remark Non-premium users are subject to a daily usage limit for affirmation generation.
+ */
 export function useAffirmationGenerator() {
   const { user } = useAuth();
   const { isPremium, trackFeatureUsage } = usePremium();

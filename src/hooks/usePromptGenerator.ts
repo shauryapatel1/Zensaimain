@@ -11,6 +11,20 @@ interface PromptResponse {
   timestamp: string;
 }
 
+/**
+ * React hook for generating prompts based on user mood and usage limits, with fallback support.
+ *
+ * Provides an asynchronous function to generate a prompt, returning either an AI-generated prompt or a deterministic fallback prompt if the AI service is unavailable or the user has reached their daily usage limit. Tracks loading and error states, and exposes the current daily usage count.
+ *
+ * @returns An object containing:
+ * - `generatePrompt`: Async function to generate a prompt, optionally based on mood and previous prompts.
+ * - `isLoading`: Boolean indicating if prompt generation is in progress.
+ * - `error`: Error message string or null.
+ * - `dailyUsageCount`: Number of prompts generated today.
+ *
+ * @remark
+ * If the AI service fails or the user exceeds their daily limit (for non-premium users), a fallback prompt is returned instead of null.
+ */
 export function usePromptGenerator() {
   const { user } = useAuth();
   const { isPremium, trackFeatureUsage } = usePremium();

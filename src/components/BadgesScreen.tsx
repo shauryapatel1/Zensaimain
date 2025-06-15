@@ -23,6 +23,13 @@ interface Badge {
   progress_percentage: number;
 }
 
+/**
+ * Displays a badge collection interface with filtering, grouping, and achievement statistics.
+ *
+ * Renders earned and unearned badges grouped by category, with options to filter by category, rarity, search term, and earned status. Shows progress statistics and animated UI elements for enhanced user experience.
+ *
+ * @param onBack - Callback invoked when the back button is pressed.
+ */
 export default function BadgesScreen({ onBack }: BadgesScreenProps) {
   const { badges, isLoading } = useJournal();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');

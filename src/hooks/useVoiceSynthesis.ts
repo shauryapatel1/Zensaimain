@@ -16,6 +16,21 @@ interface SpeechResponse {
   timestamp: string;
 }
 
+/**
+ * React hook for generating and playing text-to-speech audio with premium feature gating.
+ *
+ * Provides functions to generate and play speech from text, stop playback, and clear errors, along with state indicating generation and playback status.
+ *
+ * @returns An object containing:
+ * - `generateAndPlaySpeech`: Generates speech from text and plays the resulting audio.
+ * - `stopSpeech`: Stops any ongoing audio playback.
+ * - `clearError`: Clears the current error message.
+ * - `isGenerating`: Indicates if speech generation is in progress.
+ * - `isPlaying`: Indicates if audio is currently playing.
+ * - `error`: The current error message, if any.
+ *
+ * @remark Free users are subject to daily usage limits for voice synthesis. Exceeding the limit will prevent further speech generation until upgraded to premium.
+ */
 export function useVoiceSynthesis() {
   const { isPremium, trackFeatureUsage } = usePremium();
   const [isGenerating, setIsGenerating] = useState(false);

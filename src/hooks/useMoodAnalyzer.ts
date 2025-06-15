@@ -13,6 +13,19 @@ interface MoodAnalysisResponse {
   timestamp: string;
 }
 
+/**
+ * React hook for analyzing the mood of a journal entry using a Supabase edge function.
+ *
+ * Provides an asynchronous function to analyze a journal entry and determine its mood level, along with state for analysis progress, error messages, and daily usage count.
+ *
+ * @returns An object containing:
+ * - `analyzeMood`: Function that analyzes a journal entry and returns a {@link MoodLevel} or `null` if analysis fails.
+ * - `isAnalyzing`: Boolean indicating if analysis is in progress.
+ * - `error`: Error message string or `null` if no error.
+ * - `dailyUsageCount`: Number of times the mood analyzer has been used today.
+ *
+ * @remark Non-premium users are subject to a daily usage limit for mood analysis. If the limit is reached, further analysis attempts will return `null` and set an error message.
+ */
 export function useMoodAnalyzer() {
   const { user } = useAuth();
   const { isPremium, trackFeatureUsage } = usePremium();

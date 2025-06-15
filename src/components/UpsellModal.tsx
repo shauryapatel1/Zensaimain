@@ -10,6 +10,16 @@ interface UpsellModalProps {
   featureDescription: string;
 }
 
+/**
+ * Displays a modal dialog promoting an upgrade to a premium subscription, highlighting a specific feature and listing additional premium benefits.
+ *
+ * The modal appears with animated transitions, overlays the viewport, and provides options to upgrade or dismiss. Selecting "Upgrade to Premium" closes the modal and navigates to the premium subscription page.
+ *
+ * @param isOpen - Whether the modal is visible.
+ * @param onClose - Callback to close the modal.
+ * @param featureName - Name of the premium feature being promoted.
+ * @param featureDescription - Description of the promoted feature.
+ */
 export default function UpsellModal({ 
   isOpen, 
   onClose, 

@@ -14,6 +14,23 @@ interface VoiceButtonProps {
   className?: string;
 }
 
+/**
+ * Renders a customizable button for controlling voice playback with visual feedback and premium feature gating.
+ *
+ * Displays different icons and tooltips based on playback and generation state. If the user is not premium, the button can trigger an upsell flow or be disabled. Includes animated effects when playing.
+ *
+ * @param isPremiumUser - Whether the user has premium access. If false, the button may trigger an upsell or be disabled.
+ * @param onUpsellTrigger - Callback to trigger an upsell flow for non-premium users.
+ * @param isGenerating - Indicates if speech generation is in progress.
+ * @param isPlaying - Indicates if speech playback is currently active.
+ * @param onPlay - Callback to start playback.
+ * @param onStop - Callback to stop playback.
+ * @param disabled - Disables the button if true.
+ * @param size - Button size: 'sm', 'md', or 'lg'.
+ * @param className - Additional CSS classes for the button.
+ *
+ * @returns A React element representing the voice control button.
+ */
 export default function VoiceButton({
   isPremiumUser = true,
   onUpsellTrigger,

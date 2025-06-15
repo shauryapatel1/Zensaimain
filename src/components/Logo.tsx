@@ -7,6 +7,15 @@ interface LogoProps {
   animate?: boolean;
 }
 
+/**
+ * Renders a circular logo image with optional animation and configurable size.
+ *
+ * @param size - Determines the logo's size; accepts 'sm', 'md', or 'lg'. Defaults to 'md'.
+ * @param className - Additional CSS classes to apply to the container.
+ * @param animate - If true, enables entrance and hover animations. Defaults to true.
+ *
+ * @returns A JSX element displaying the logo, animated if {@link animate} is true.
+ */
 export default function Logo({ size = 'md', className = '', animate = true }: LogoProps) {
   // Size classes for the container
   const logoContainerSizeClasses = {

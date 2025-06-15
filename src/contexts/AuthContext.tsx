@@ -23,6 +23,13 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Provides authentication context and state management for child components using Supabase.
+ *
+ * Initializes authentication state, retrieves the current user session on mount, and listens for authentication state changes. Exposes authentication methods (`login`, `logout`, `signup`) and current user state to descendant components.
+ *
+ * @remark Must wrap components that use the authentication context.
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
