@@ -23,6 +23,9 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabase';
+import { usePremium } from '../hooks/usePremium';
+import UpsellModal from './UpsellModal';
+import { fonts } from '../data/fonts';
 import Logo from './Logo';
 import { useNavigate } from 'react-router-dom';
 import LottieAvatar from './LottieAvatar';
@@ -44,6 +47,7 @@ interface UserProfile {
 export default function SettingsScreen({ onBack }: SettingsScreenProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { isPremium, isUpsellModalOpen, upsellContent, showUpsellModal, hideUpsellModal } = usePremium();
   const { isDarkMode, setDarkMode } = useTheme();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,6 +61,9 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
   const [originalName, setOriginalName] = useState('');
   const [journalingGoal, setJournalingGoal] = useState(3);
   const [originalGoal, setOriginalGoal] = useState(3);
+  
+  // Font customization
+  const [selectedFont, setSelectedFont] = useState('');
   
   // Preferences state
   const [notifications, setNotifications] = useState(true);
@@ -98,6 +105,7 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
       setOriginalName(profileData.name || user.name || '');
       setJournalingGoal(profileData.journaling_goal_frequency || 3);
       setOriginalGoal(profileData.journaling_goal_frequency || 3);
+      setSelectedFont(profileData.selected_font || 'Inter');
     } catch (err) {
       console.error('Error loading profile:', err);
       setError('An unexpected error occurred');
@@ -670,6 +678,62 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
               </div>
             </div>
 
+            {/* Customization Section */}
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-600/20">
+              <h3 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center">
+                <Sparkles className="w-5 h-5 mr-2 text-zen-mint-500" />
+                Customization
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
+                    Journal Font
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={selectedFont}
+                      onChange={(e) => {
+                        if (!isPremium) {
+                          showUpsellModal({
+                            featureName: 'Custom Fonts',
+                            featureDescription: 'Personalize your journaling experience with a selection of beautiful fonts.'
+                          });
+                          return;
+                        }
+                        setSelectedFont(e.target.value);
+                      }}
+                      disabled={!isPremium}
+                      className={`w-full px-4 py-3 border border-zen-sage-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent bg-white/70 dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200 appearance-none ${!isPremium ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    >
+                      {fonts.map(font => (
+                        <option key={font.name} value={font.name}>{font.name} - {font.description}</option>
+                      ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <ChevronDown className="w-5 h-5 text-zen-sage-400 dark:text-gray-500" />
+                    </div>
+                  </div>
+                  {!isPremium && (
+                    <p className="text-zen-peach-500 text-xs mt-2 flex items-center">
+                      <Crown className="w-3 h-3 mr-1" />
+                      Premium feature - Upgrade to customize fonts
+                    </p>
+                  )}
+                </div>
+                
+                {/* Font Preview */}
+                {isPremium && (
+                  <div className="mt-4 p-4 bg-white/70 dark:bg-gray-700/70 rounded-xl border border-zen-sage-200 dark:border-gray-600">
+                    <h4 className="text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">Preview:</h4>
+                    <p className={`${fonts.find(f => f.name === selectedFont)?.className || 'font-sans'} text-zen-sage-800 dark:text-gray-200`}>
+                      This is how your journal entries will look with the selected font.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Data Management */}
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-600/20">
               <h3 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center">
@@ -842,6 +906,14 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* Upsell Modal */}
+      <UpsellModal
+        isOpen={isUpsellModalOpen}
+        onClose={hideUpsellModal}
+        featureName={upsellContent.featureName}
+        featureDescription={upsellContent.featureDescription}
+      />
     </div>
   );
 }
