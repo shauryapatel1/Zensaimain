@@ -7,6 +7,17 @@ interface LogoProps {
   animate?: boolean;
 }
 
+/**
+ * Renders a circular logo container with optional animation and customizable size.
+ *
+ * Displays the Zensai logo inside a styled, blurred, and shadowed container. The container's size and additional CSS classes can be customized. When animation is enabled, the logo fades and scales in on mount and slightly enlarges on hover.
+ *
+ * @param size - Determines the logo container's size; can be 'sm', 'md', or 'lg'. Defaults to 'md'.
+ * @param className - Additional CSS classes to apply to the container.
+ * @param animate - If true, enables mount and hover animations. Defaults to true.
+ *
+ * @returns The rendered logo component as a JSX element.
+ */
 export default function Logo({ size = 'md', className = '', animate = true }: LogoProps) {
   // Size classes for the container
   const logoContainerSizeClasses = {

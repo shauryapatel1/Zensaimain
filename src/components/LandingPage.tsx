@@ -5,6 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 import LottieAvatar from './LottieAvatar';
 
+/**
+ * Renders the animated landing page for the Zensai mindfulness journaling app.
+ *
+ * Displays a multi-section layout including navigation, hero, features, benefits, testimonials, and a call-to-action, all with animated transitions and interactive navigation. The page introduces the app's companion Zeno, highlights key features and user testimonials, and encourages users to begin their mindfulness journey.
+ */
 export default function LandingPage() {
   const navigate = useNavigate();
 

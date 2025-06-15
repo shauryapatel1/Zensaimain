@@ -44,6 +44,13 @@ interface GroupedEntries {
   [date: string]: JournalEntry[];
 }
 
+/**
+ * Displays a journal dashboard with mood-tagged entries, allowing users to view, search, filter, sort, paginate, edit, and delete their journal entries.
+ *
+ * Provides mood statistics, animated UI elements, and modals for detailed entry viewing and editing. Entries are grouped by date and can be filtered by mood or searched by content.
+ *
+ * @param onBack - Callback invoked when the user navigates back from the dashboard.
+ */
 export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
   const { user } = useAuth();
   const { entries, isLoading, error, deleteEntry, updateEntry } = useJournal();
