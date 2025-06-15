@@ -13,6 +13,19 @@ interface MoodQuoteResponse {
   timestamp: string;
 }
 
+/**
+ * React hook that provides functionality to generate mood-based quotes using a Supabase edge function, with integrated premium usage tracking and error handling.
+ *
+ * Exposes a function to generate a quote based on the user's mood, an optional journal entry, and previous quotes. Enforces daily usage limits for non-premium users and provides error state and loading status.
+ *
+ * @returns An object containing:
+ * - `generateMoodQuote`: Function to request a mood-based quote.
+ * - `isGenerating`: Boolean indicating if a quote is currently being generated.
+ * - `error`: Error message string or `null` if no error.
+ * - `dailyUsageCount`: Number of times the feature has been used today (not updated within this hook).
+ *
+ * @remark If the user is not premium and exceeds the daily usage limit, quote generation is blocked and an error message is set.
+ */
 export function useMoodQuoteGenerator() {
   const { user } = useAuth();
   const { isPremium, trackFeatureUsage } = usePremium();

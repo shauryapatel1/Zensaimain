@@ -23,6 +23,16 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Provides authentication state and methods to child components via React context.
+ *
+ * Initializes and manages user authentication state using Supabase, including session retrieval, login, signup, and logout. Listens for authentication state changes to keep the context synchronized with Supabase. Exposes authentication state and methods to descendant components.
+ *
+ * @param children - React nodes that will have access to the authentication context.
+ *
+ * @remark
+ * If an invalid refresh token is detected during initial session retrieval, the provider will clear the session from local storage to prevent persistent authentication errors.
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,

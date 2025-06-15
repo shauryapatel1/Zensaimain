@@ -1,5 +1,10 @@
 import Link from "next/link";
 
+/**
+ * Renders the site footer with the current year, branding, and navigation links.
+ *
+ * The footer includes internal links to privacy and terms pages, as well as external links to the project's GitHub repository and Devpost page.
+ */
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 

@@ -49,6 +49,17 @@ interface GroupedEntries {
   [date: string]: JournalEntry[];
 }
 
+/**
+ * Renders the Mood History journal dashboard with mood statistics, filtering, sorting, pagination, and premium feature upsell.
+ *
+ * Displays a timeline of journal entries grouped by date, with mood distribution analytics, search and filter controls, inline editing, and premium feature prompts. Supports entry expansion, deletion, and editing, as well as premium gating for advanced analytics and full history access.
+ *
+ * @param onBack - Callback invoked when the user navigates back from the dashboard.
+ *
+ * @remark
+ * - Free users are limited to viewing the last 30 entries or 30 days of history; exceeding this shows an upsell prompt.
+ * - Advanced analytics and unlimited history are available only to premium users.
+ */
 export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
   const { user } = useAuth();
   const { isPremium, isUpsellModalOpen, upsellContent, showUpsellModal, hideUpsellModal } = usePremium();

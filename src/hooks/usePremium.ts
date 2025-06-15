@@ -6,6 +6,22 @@ export interface UpsellModalContent {
   featureDescription: string;
 }
 
+/**
+ * Provides premium subscription state, feature access control, and upsell modal management for the application.
+ *
+ * Returns subscription status flags, subscription expiration date, upsell modal state and controls, and functions to check feature access and enforce daily usage limits for free users.
+ *
+ * @returns An object containing:
+ * - `isPremium`: Whether the user has a premium subscription.
+ * - `isPremiumPlus`: Whether the user has a premium plus (yearly) subscription.
+ * - `subscriptionExpiresAt`: The subscription expiration date, or `null` if not available.
+ * - `isUpsellModalOpen`: Whether the upsell modal is currently open.
+ * - `upsellContent`: The current content of the upsell modal.
+ * - `showUpsellModal(content?)`: Opens the upsell modal with optional custom content.
+ * - `hideUpsellModal()`: Closes the upsell modal.
+ * - `canUseFeature(featureName)`: Returns `true` if the specified feature is accessible to the user.
+ * - `trackFeatureUsage(featureKey, limit?)`: Tracks daily usage of a feature for free users, enforcing a usage limit (default 2); always returns `true` for premium users.
+ */
 export function usePremium() {
   const { profile } = useJournal();
   const [isUpsellModalOpen, setIsUpsellModalOpen] = useState(false);

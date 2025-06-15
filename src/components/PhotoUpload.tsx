@@ -11,6 +11,21 @@ interface PhotoUploadProps {
   className?: string;
 }
 
+/**
+ * React component for uploading, previewing, and managing a photo with drag-and-drop and file input support.
+ *
+ * Allows users to select an image file, preview it, and remove or change the selection. The component enforces a 5MB file size limit and accepts only image files. Premium user gating is supported: non-premium users are prevented from uploading and can trigger an upsell callback. Visual feedback is provided for drag-and-drop and upload states, with animated transitions.
+ *
+ * @param isPremiumUser - Whether the user has premium access; disables upload and triggers upsell if false.
+ * @param onUpsellTrigger - Callback invoked when a non-premium user attempts to use the upload feature.
+ * @param onPhotoSelect - Callback invoked with the selected image file or `null` when cleared.
+ * @param currentPhoto - Optional initial photo URL to display as a preview.
+ * @param disabled - Disables all interaction if true.
+ * @param className - Additional CSS classes for the container.
+ *
+ * @remark
+ * Only image files up to 5MB are accepted. Non-premium users cannot upload photos and will see an upsell prompt if {@link onUpsellTrigger} is provided.
+ */
 export default function PhotoUpload({ 
   isPremiumUser = true,
   onUpsellTrigger,

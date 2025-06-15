@@ -8,6 +8,11 @@ import AuthScreen from './components/AuthScreen';
 import AuthenticatedApp from './components/AuthenticatedApp';
 import LandingPage from './components/LandingPage';
 
+/**
+ * Renders the main application routes with animated transitions and conditional navigation based on authentication state.
+ *
+ * Displays a loading spinner while authentication status is being determined. Once loaded, routes are rendered with enter/exit animations, and navigation is restricted or redirected according to whether the user is authenticated. A persistent footer is shown on all routed pages.
+ */
 function AppContent() {
   const { isAuthenticated, isLoading } = useAuth();
 

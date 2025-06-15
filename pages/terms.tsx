@@ -5,6 +5,11 @@ import Link from 'next/link';
 import Head from 'next/head';
 import Logo from '../src/components/Logo';
 
+/**
+ * Renders the Terms of Service page for the Zensai platform with animated background elements, a styled header, and comprehensive legal content.
+ *
+ * The page includes navigation back to the home page, the Zensai logo, and a detailed, structured presentation of the Terms of Service, including sections on eligibility, user responsibilities, privacy, AI-generated content, subscription terms, prohibited uses, disclaimers, and contact information.
+ */
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-zen-mint-50 via-zen-cream-50 to-zen-lavender-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">

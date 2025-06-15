@@ -26,6 +26,13 @@ import { moods } from '../data/moods';
 // Define available Lottie animation variants
 const LOTTIE_VARIANTS = ['greeting', 'journaling', 'typing', 'coding', 'music'];
 
+/**
+ * Renders the main authenticated user interface for the journaling application, providing journaling, mood analysis, affirmations, badge tracking, and premium features.
+ *
+ * This component manages multiple views (journal, history, badges, settings, premium), integrates AI-powered mood and content generation, handles journal entry creation with optional title and photo, displays animated feedback, and manages premium upsell modals and notifications.
+ *
+ * @remark Only accessible to authenticated users. Handles asynchronous operations, error states, and premium feature gating internally.
+ */
 export default function AuthenticatedApp() {
   const { user, logout } = useAuth();
   const { 
