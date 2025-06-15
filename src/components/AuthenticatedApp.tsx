@@ -663,4 +663,342 @@ export default function AuthenticatedApp() {
         {showSuccess && (
           <motion.div
             className="fixed top-4 right-4 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white px-6 py-4 rounded-2xl shadow-xl z-50 border border-zen-mint-300"
-            initial={{
+            initial={{ opacity: 0, x: 100, scale: 0.8 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 100, scale: 0.8 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <div className="flex items-center space-x-3">
+              <CheckCircle className="w-6 h-6 text-white" />
+              <span className="font-medium">{successMessage}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main Content */}
+      <main className="relative z-10 max-w-4xl mx-auto px-4 pb-8">
+        {/* Welcome Section */}
+        <motion.div
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <h2 className="text-3xl font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-2">
+            {getGreeting()}
+          </h2>
+          <p className="text-zen-sage-600 dark:text-gray-400 mb-4">{getCurrentDate()}</p>
+          
+          {/* Stats */}
+          <div className="flex justify-center space-x-6 mb-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-zen-mint-600 dark:text-zen-mint-400">{streak}</div>
+              <div className="text-sm text-zen-sage-600 dark:text-gray-400">Current Streak</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-zen-peach-600 dark:text-zen-peach-400">{bestStreak}</div>
+              <div className="text-sm text-zen-sage-600 dark:text-gray-400">Best Streak</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-zen-lavender-600 dark:text-zen-lavender-400">{totalEntries}</div>
+              <div className="text-sm text-zen-sage-600 dark:text-gray-400">Total Entries</div>
+            </div>
+          </div>
+
+          {/* Contextual Message */}
+          {getContextualMessage() && (
+            <motion.div
+              className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-4 mb-6 border border-zen-mint-200 dark:border-gray-700"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+            >
+              <p className="text-zen-sage-700 dark:text-gray-300 font-medium">
+                {getContextualMessage()}
+              </p>
+            </motion.div>
+          )}
+        </motion.div>
+
+        {/* Zeno Avatar */}
+        <motion.div
+          className="flex justify-center mb-8"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <div className="relative">
+            <LottieAvatar variant={zenoVariant} size="lg" />
+            {/* Speech bubble for contextual messages */}
+            {(showMoodConfirmation || showAffirmation || showMoodQuote) && (
+              <motion.div
+                className="absolute -top-16 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-xl border border-zen-mint-200 dark:border-gray-700 max-w-xs"
+                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
+              >
+                {showMoodConfirmation && (
+                  <p className="text-sm text-zen-sage-700 dark:text-gray-300">
+                    Perfect! I can sense that energy. ✨
+                  </p>
+                )}
+                {showAffirmation && affirmation && (
+                  <div>
+                    <p className="text-sm text-zen-sage-700 dark:text-gray-300 mb-2">
+                      {affirmation}
+                    </p>
+                    {affirmationError && (
+                      <p className="text-xs text-zen-peach-600 dark:text-zen-peach-400">
+                        {affirmationError}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {showMoodQuote && moodQuote && (
+                  <div>
+                    <p className="text-sm text-zen-sage-700 dark:text-gray-300 italic">
+                      "{moodQuote.quote}"
+                    </p>
+                    {moodQuote.attribution && (
+                      <p className="text-xs text-zen-sage-500 dark:text-gray-400 mt-1">
+                        — {moodQuote.attribution}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {/* Speech bubble tail */}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white dark:border-t-gray-800"></div>
+              </motion.div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Journal Entry Form */}
+        <motion.div
+          className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-zen-mint-200 dark:border-gray-700"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          {/* Daily Prompt */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200 flex items-center">
+                <Lightbulb className="w-5 h-5 mr-2 text-zen-mint-600" />
+                Today's Reflection
+              </h3>
+              <button
+                onClick={handleGenerateNewPrompt}
+                disabled={isLoadingPrompt}
+                className="flex items-center space-x-1 px-3 py-1 text-sm text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 hover:bg-zen-mint-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${isLoadingPrompt ? 'animate-spin' : ''}`} />
+                <span>New Prompt</span>
+              </button>
+            </div>
+            <div className="bg-zen-mint-50 dark:bg-gray-700 rounded-2xl p-4 border border-zen-mint-200 dark:border-gray-600">
+              <p className="text-zen-sage-700 dark:text-gray-300 font-medium">
+                {getDailyPrompt()}
+              </p>
+            </div>
+          </div>
+
+          {/* Entry Title */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
+              Entry Title (Optional)
+            </label>
+            <input
+              type="text"
+              value={entryTitle}
+              onChange={(e) => setEntryTitle(e.target.value)}
+              placeholder="Give your entry a title..."
+              className="w-full px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-zen-mint-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent transition-all duration-300 text-zen-sage-800 dark:text-gray-200 placeholder-zen-sage-400 dark:placeholder-gray-500"
+            />
+          </div>
+
+          {/* Mood Selection */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-3">
+              How are you feeling?
+            </label>
+            <MoodSelector
+              selectedMood={selectedMood}
+              onMoodSelect={handleMoodSelect}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          {/* AI Mood Suggestion */}
+          <AnimatePresence>
+            {showMoodSuggestion && aiDetectedMood && (
+              <motion.div
+                className="mb-6 bg-zen-lavender-50 dark:bg-gray-700 border border-zen-lavender-200 dark:border-gray-600 rounded-2xl p-4"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Sparkles className="w-5 h-5 text-zen-lavender-600" />
+                    <div>
+                      <p className="text-sm font-medium text-zen-sage-800 dark:text-gray-200">
+                        Based on your writing, I sense you might be feeling{' '}
+                        <span className="font-semibold">
+                          {moods.find(m => m.level === aiDetectedMood)?.label}
+                        </span>
+                      </p>
+                      <p className="text-xs text-zen-sage-600 dark:text-gray-400">
+                        Would you like me to update your mood selection?
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={handleAcceptAiMood}
+                      className="px-3 py-1 bg-zen-lavender-500 text-white text-sm rounded-lg hover:bg-zen-lavender-600 transition-colors duration-200"
+                    >
+                      Yes
+                    </button>
+                    <button
+                      onClick={handleDismissMoodSuggestion}
+                      className="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-zen-sage-700 dark:text-gray-300 text-sm rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200"
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Photo Upload */}
+          <div className="mb-6">
+            <PhotoUpload
+              selectedPhoto={selectedPhoto}
+              onPhotoSelect={setSelectedPhoto}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          {/* Journal Entry Textarea */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
+              Your thoughts
+            </label>
+            <div className="relative">
+              <textarea
+                value={journalEntry}
+                onChange={(e) => setJournalEntry(e.target.value)}
+                onFocus={() => setIsTextareaFocused(true)}
+                onBlur={() => setIsTextareaFocused(false)}
+                placeholder="Share what's on your mind... Zeno is here to listen."
+                rows={8}
+                className="w-full px-4 py-4 bg-white/50 dark:bg-gray-700/50 border border-zen-mint-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent transition-all duration-300 text-zen-sage-800 dark:text-gray-200 placeholder-zen-sage-400 dark:placeholder-gray-500 resize-none"
+                disabled={isSubmitting}
+              />
+              {/* Character count */}
+              <div className="absolute bottom-3 right-3 text-xs text-zen-sage-400 dark:text-gray-500">
+                {journalEntry.length} characters
+              </div>
+            </div>
+          </div>
+
+          {/* Voice Features */}
+          {affirmation && (
+            <div className="mb-6 flex items-center justify-between bg-zen-peach-50 dark:bg-gray-700 rounded-2xl p-4 border border-zen-peach-200 dark:border-gray-600">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-zen-sage-800 dark:text-gray-200 mb-1">
+                  Your Personal Affirmation
+                </p>
+                <p className="text-zen-sage-700 dark:text-gray-300 text-sm">
+                  {affirmation}
+                </p>
+              </div>
+              <VoiceButton
+                text={affirmation}
+                onPlay={() => generateAndPlaySpeech(affirmation)}
+                onStop={stopSpeech}
+                isGenerating={isGeneratingSpeech}
+                isPlaying={isSpeechPlaying}
+                error={speechError}
+                onClearError={clearSpeechError}
+              />
+            </div>
+          )}
+
+          {/* Error Message */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex items-center space-x-2">
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                  <p className="text-red-700 dark:text-red-300 text-sm font-medium">{error}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Submit Button */}
+          <div className="flex justify-center">
+            <motion.button
+              onClick={handleSubmit}
+              disabled={!journalEntry.trim() || !selectedMood || isSubmitting}
+              className="flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white font-semibold rounded-2xl hover:from-zen-mint-500 hover:to-zen-mint-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Saving your thoughts...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-5 h-5" />
+                  <span>Save Entry</span>
+                </>
+              )}
+            </motion.button>
+          </div>
+
+          {/* Already journaled today message */}
+          {alreadyJournaledToday && !isSubmitting && (
+            <motion.div
+              className="mt-6 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <div className="inline-flex items-center space-x-2 bg-zen-mint-50 dark:bg-gray-700 px-4 py-2 rounded-full border border-zen-mint-200 dark:border-gray-600">
+                <CheckCircle className="w-4 h-4 text-zen-mint-600" />
+                <span className="text-sm text-zen-sage-700 dark:text-gray-300 font-medium">
+                  You've already journaled today! Feel free to add another entry.
+                </span>
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
+      </main>
+
+      {/* Upsell Modal */}
+      <UpsellModal
+        isOpen={isUpsellModalOpen}
+        onClose={hideUpsellModal}
+        title={upsellContent?.title || ''}
+        description={upsellContent?.description || ''}
+        features={upsellContent?.features || []}
+        ctaText={upsellContent?.ctaText || ''}
+      />
+    </div>
+  );
+}
