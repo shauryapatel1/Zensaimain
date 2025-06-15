@@ -26,9 +26,9 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    // Validate API key
-    if (!OPENAI_API_KEY) {
-      throw new Error('OpenAI API key not configured');
+    // Validate API key - check for existence and non-empty string
+    if (!OPENAI_API_KEY || OPENAI_API_KEY.trim() === '') {
+      throw new Error('OpenAI API key not configured or empty');
     }
 
     // Parse request body (optional)
@@ -62,11 +62,11 @@ ${previousPrompts.length > 0 ? `Avoid repeating these recent prompts: ${previous
 
 Generate ONE journaling prompt that would be perfect for today. Return only the prompt text, nothing else.`;
 
-    // Call OpenAI API
+    // Call OpenAI API with trimmed API key
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY.trim()}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
