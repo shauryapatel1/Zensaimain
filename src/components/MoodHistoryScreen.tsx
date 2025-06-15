@@ -17,6 +17,7 @@ import {
   TrendingUp,
   Eye,
   BarChart3,
+  Sparkles,
   Crown
 } from 'lucide-react';
 import { useJournal } from '../hooks/useJournal';
@@ -500,6 +501,63 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
           </div>
         </motion.div>
 
+        {/* Advanced Analytics Section (Premium Feature) */}
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-600/20">
+            <h2 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center space-x-2">
+              <Sparkles className="w-5 h-5 text-zen-mint-500" />
+              <span>Advanced Analytics</span>
+              {!isPremium && (
+                <span className="text-xs font-normal text-zen-peach-500 bg-zen-peach-100 dark:bg-zen-peach-900/30 px-2 py-1 rounded-full">
+                  Premium
+                </span>
+              )}
+            </h2>
+            
+            {isPremium ? (
+              <div className="text-center py-8">
+                <Sparkles className="w-12 h-12 text-zen-mint-400 mx-auto mb-4 opacity-70" />
+                <h3 className="text-xl font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-2">
+                  Advanced Insights Coming Soon
+                </h3>
+                <p className="text-zen-sage-600 dark:text-gray-400 max-w-md mx-auto">
+                  We're working on detailed mood trends, sentiment analysis, and AI-generated summaries of your emotional patterns.
+                </p>
+              </div>
+            ) : (
+              <div className="bg-gradient-to-r from-zen-mint-50 to-zen-lavender-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-full flex-shrink-0">
+                    <Crown className="w-6 h-6 text-yellow-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-2">
+                      Unlock Advanced Analytics
+                    </h3>
+                    <p className="text-zen-sage-600 dark:text-gray-400 mb-4">
+                      Upgrade to Zensai Premium to access detailed mood trends, sentiment analysis, and AI-generated insights about your emotional patterns.
+                    </p>
+                    <button
+                      onClick={() => showUpsellModal({
+                        featureName: 'Advanced Analytics',
+                        featureDescription: 'Gain deeper insights into your emotional patterns with detailed mood trends and AI-powered analysis.'
+                      })}
+                      className="px-4 py-2 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white rounded-xl hover:from-zen-mint-500 hover:to-zen-mint-600 transition-colors shadow-md"
+                    >
+                      Upgrade to Premium
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
         {/* Premium History Limit Message */}
         {showHistoryLimitMessage && (
           <motion.div
@@ -589,64 +647,4 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
                         </h3>
                         <p className="text-sm text-zen-sage-600 dark:text-gray-400">
                           {dayEntries.length} {dayEntries.length === 1 ? 'entry' : 'entries'} • 
-                          Average mood: {dayMoodData?.label}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex-1 h-px bg-gradient-to-r from-zen-sage-200 dark:from-gray-600 to-transparent" />
-                  </div>
-
-                  {/* Entries for this date */}
-                  <div className="space-y-4 ml-8">
-                    {dayEntries.map((entry, entryIndex) => {
-                      const entryMood = getMoodLevel(entry.mood);
-                      const entryMoodData = moods.find(m => m.level === entryMood);
-                      const isExpanded = expandedEntry === entry.id;
-                      const previewLength = 150;
-                      const needsExpansion = entry.content.length > previewLength;
-
-                      return (
-                        <motion.div
-                          key={entry.id}
-                          className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 dark:border-gray-600/20 hover:shadow-xl transition-all duration-300"
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: (dateIndex * 0.1) + (entryIndex * 0.05) }}
-                          whileHover={{ y: -2 }}
-                        >
-                          {/* Entry Header */}
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center space-x-3">
-                              <div className="text-2xl">{entryMoodData?.emoji}</div>
-                              <div>
-                                {entry.title && (
-                                  <h4 className="font-medium text-zen-sage-800 dark:text-gray-200 mb-1">
-                                    {entry.title}
-                                  </h4>
-                                )}
-                                <div className="flex items-center space-x-2">
-                                  <Clock className="w-4 h-4 text-zen-sage-400 dark:text-gray-500" />
-                                  <span className="text-sm font-medium text-zen-sage-600 dark:text-gray-400">
-                                    {formatTime(entry.created_at)}
-                                  </span>
-                                  <span className="text-xs text-zen-sage-400 dark:text-gray-500">•</span>
-                                  <span className="text-sm text-zen-sage-600 dark:text-gray-400">
-                                    {entryMoodData?.label}
-                                  </span>
-                                </div>
-                                <p className="text-xs text-zen-sage-500 dark:text-gray-500 mt-1">
-                                  {entry.content.split(' ').length} words
-                                </p>
-                              </div>
-                            </div>
-                            
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => setSelectedEntry(entry)}
-                                className="p-2 text-zen-sage-500 dark:text-gray-400 hover:text-zen-mint-600 hover:bg-zen-mint-100 dark:hover:bg-zen-mint-900/30 rounded-lg transition-all"
-                                title="View full entry"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleEditEntry(entry)}
+                          Average mood:
