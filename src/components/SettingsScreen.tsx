@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, 
   User, 
-  Settings as SettingsIcon, 
+  Settings as SettingsIcon,
+  Crown,
   LogOut, 
   Trash2, 
   Save, 
@@ -23,6 +24,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabase';
 import Logo from './Logo';
+import { useNavigate } from 'react-router-dom';
 import LottieAvatar from './LottieAvatar';
 
 interface SettingsScreenProps {
@@ -41,6 +43,7 @@ interface UserProfile {
 
 export default function SettingsScreen({ onBack }: SettingsScreenProps) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const { isDarkMode, setDarkMode } = useTheme();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -607,6 +610,61 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
                         notifications ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Subscription Section */}
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-600/20">
+              <h3 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center">
+                <Crown className="w-5 h-5 mr-2 text-yellow-500" />
+                Subscription
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="p-4 bg-gradient-to-r from-zen-mint-50 to-zen-lavender-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-zen-sage-800 dark:text-gray-200">Current Plan</h4>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      profile?.subscription_status === 'premium'
+                        ? 'bg-zen-mint-100 text-zen-mint-700 dark:bg-zen-mint-900/30 dark:text-zen-mint-400'
+                        : 'bg-zen-sage-100 text-zen-sage-700 dark:bg-gray-600 dark:text-gray-300'
+                    }`}>
+                      {profile?.subscription_status === 'premium' 
+                        ? profile?.subscription_tier === 'premium_plus' 
+                          ? 'Premium Yearly' 
+                          : 'Premium Monthly'
+                        : 'Free'}
+                    </span>
+                  </div>
+                  
+                  {profile?.subscription_status === 'premium' && profile?.subscription_expires_at && (
+                    <p className="text-sm text-zen-sage-600 dark:text-gray-400 mb-4">
+                      Your subscription renews on {new Date(profile.subscription_expires_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  )}
+                  
+                  {profile?.subscription_status === 'cancelled' && profile?.subscription_expires_at && (
+                    <p className="text-sm text-zen-peach-600 dark:text-zen-peach-400 mb-4">
+                      Your subscription is cancelled and will end on {new Date(profile.subscription_expires_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  )}
+                  
+                  <button
+                    onClick={() => navigate('/premium')}
+                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white rounded-xl hover:from-zen-mint-500 hover:to-zen-mint-600 transition-colors shadow-md"
+                  >
+                    <Crown className="w-4 h-4" />
+                    <span>{profile?.subscription_status === 'premium' ? 'Manage Subscription' : 'Upgrade to Premium'}</span>
                   </button>
                 </div>
               </div>

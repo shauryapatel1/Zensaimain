@@ -15,6 +15,7 @@ import PhotoUpload from './PhotoUpload';
 import MoodHistoryScreen from './MoodHistoryScreen';
 import SettingsScreen from './SettingsScreen';
 import BadgesScreen from './BadgesScreen';
+import PremiumPage from './PremiumPage';
 import VoiceButton from './VoiceButton';
 import ToastNotification, { ToastType } from './ToastNotification';
 import { MoodLevel } from '../types';
@@ -34,7 +35,7 @@ export default function AuthenticatedApp() {
     error: journalError 
   } = useJournal();
   
-  const [currentView, setCurrentView] = useState<'journal' | 'history' | 'settings' | 'badges'>('journal');
+  const [currentView, setCurrentView] = useState<'journal' | 'history' | 'settings' | 'badges' | 'premium'>('journal');
   const [selectedMood, setSelectedMood] = useState<MoodLevel>();
   const [journalEntry, setJournalEntry] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -531,6 +532,11 @@ export default function AuthenticatedApp() {
   if (currentView === 'badges') {
     return <BadgesScreen onBack={() => setCurrentView('journal')} />;
   }
+  
+  // Show premium view
+  if (currentView === 'premium') {
+    return <PremiumPage onBack={() => setCurrentView('journal')} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zen-mint-50 via-zen-cream-50 to-zen-lavender-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -606,6 +612,13 @@ export default function AuthenticatedApp() {
                 {badges.filter(b => b.earned).length}
               </span>
             )}
+          </button>
+          <button
+            onClick={() => setCurrentView('premium')}
+            className="flex items-center space-x-2 px-3 py-2 text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-700/50 rounded-full transition-all duration-300"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span className="text-sm font-medium hidden sm:inline">Premium</span>
           </button>
           <button
             onClick={() => setCurrentView('settings')}
