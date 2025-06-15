@@ -583,10 +583,8 @@ export default function AuthenticatedApp() {
       >
         <div className="flex items-center space-x-3">
           <Logo size="md" />
-          <div>
-            <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200">Zensai</h1>
-            <p className="text-xs text-zen-sage-600 dark:text-gray-400">with Zeno</p>
-          </div>
+          <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200">Zensai</h1>
+          <p className="text-xs text-zen-sage-600 dark:text-gray-400">with Zeno</p>
         </div>
 
         <div className="flex items-center space-x-2">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import LottieAvatar from './LottieAvatar';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
@@ -8,33 +9,39 @@ interface LogoProps {
 }
 
 export default function Logo({ size = 'md', className = '', animate = true }: LogoProps) {
-  const sizeClasses = {
-    sm: 'h-8 w-8',
-    md: 'h-12 w-12',
-    lg: 'h-16 w-16'
+  const sizeMap = {
+    sm: 'sm',
+    md: 'md',
+    lg: 'lg'
   };
-
-  const LogoImage = (
-    <img
-      src="/Zensai Logo.png"
-      alt="Zensai Logo"
-      className={`${sizeClasses[size]} object-contain ${className}`}
-    />
-  );
 
   if (animate) {
     return (
       <motion.div
-        className="flex-shrink-0"
+        className={`flex-shrink-0 rounded-full overflow-hidden bg-white/20 backdrop-blur-sm shadow-lg ${className}`}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
         whileHover={{ scale: 1.05 }}
       >
-        {LogoImage}
+        <LottieAvatar 
+          mood={4} 
+          size={sizeMap[size]} 
+          variant="greeting" 
+          animate={false}
+        />
       </motion.div>
     );
   }
 
-  return <div className="flex-shrink-0">{LogoImage}</div>;
+  return (
+    <div className={`flex-shrink-0 rounded-full overflow-hidden bg-white/20 backdrop-blur-sm shadow-lg ${className}`}>
+      <LottieAvatar 
+        mood={4} 
+        size={sizeMap[size]} 
+        variant="greeting" 
+        animate={false}
+      />
+    </div>
+  );
 }

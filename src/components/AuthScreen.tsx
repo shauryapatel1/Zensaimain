@@ -168,15 +168,8 @@ export default function AuthScreen() {
         transition={{ duration: 0.6 }}
       >
         <Logo size="sm" />
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
-            <LottieAvatar mood={4} size="sm" variant="greeting" animate={false} />
-          </div>
-          <div>
-            <h1 className="font-display font-bold text-zen-sage-800">Zensai</h1>
-            <p className="text-xs text-zen-sage-600">with Zeno</p>
-          </div>
-        </div>
+        <h1 className="font-display font-bold text-zen-sage-800">Zensai</h1>
+        <p className="text-xs text-zen-sage-600">with Zeno</p>
       </motion.div>
 
       {/* Success Message */}
@@ -250,15 +243,6 @@ export default function AuthScreen() {
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             >
               <Logo size="lg" />
-            </motion.div>
-            
-            <motion.div
-              className="flex justify-center mb-6"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-            >
-              <LottieAvatar mood={4} size="lg" variant="greeting" />
             </motion.div>
             
             <motion.h1
