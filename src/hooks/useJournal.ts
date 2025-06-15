@@ -44,6 +44,17 @@ interface Badge {
   progress_percentage: number;
 }
 
+/**
+ * React hook for managing journal entries, user profile, badges, and related operations with Supabase integration.
+ *
+ * Provides state and functions for loading, creating, updating, and deleting journal entries; managing user profile and journaling goals; tracking streaks and badge progress; and handling premium feature access.
+ *
+ * @returns An object containing journal entries, user profile, badges, loading and error states, premium status, and functions for CRUD operations and streak/badge utilities.
+ *
+ * @remark
+ * - Free users are limited to viewing the last 30 days or 30 entries and cannot upload photos to entries.
+ * - Premium status is determined by the user's subscription status and expiration date.
+ */
 export function useJournal() {
   const { user, isAuthenticated } = useAuth();
   const [entries, setEntries] = useState<JournalEntry[]>([]);

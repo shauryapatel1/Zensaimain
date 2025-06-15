@@ -5,6 +5,11 @@ import Link from 'next/link';
 import Head from 'next/head';
 import Logo from '../src/components/Logo';
 
+/**
+ * Renders the Zensai Privacy Policy page with animated background elements and styled content.
+ *
+ * Displays the full privacy policy, including information on data collection, AI service usage, data storage and security, user privacy rights, cookies, data retention, children's privacy, policy updates, and contact details. The page features animated UI elements and adapts to light and dark modes.
+ */
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-zen-mint-50 via-zen-cream-50 to-zen-lavender-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">

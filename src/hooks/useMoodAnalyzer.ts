@@ -13,6 +13,19 @@ interface MoodAnalysisResponse {
   timestamp: string;
 }
 
+/**
+ * React hook for analyzing the mood of a journal entry using a backend service, with premium feature gating and error handling.
+ *
+ * Provides an `analyzeMood` function that processes a journal entry and returns a numeric mood level or `null` if analysis fails. Tracks analysis state, error messages, and daily usage count.
+ *
+ * @returns An object containing:
+ * - `analyzeMood`: Function to analyze the mood of a journal entry.
+ * - `isAnalyzing`: Whether a mood analysis is currently in progress.
+ * - `error`: Error message if analysis fails, or `null`.
+ * - `dailyUsageCount`: Number of times the mood analyzer has been used today.
+ *
+ * @remark Non-premium users are subject to a daily usage limit for mood analysis. If the limit is reached, further analysis attempts will return `null` and set an error message.
+ */
 export function useMoodAnalyzer() {
   const { user } = useAuth();
   const { isPremium, trackFeatureUsage } = usePremium();

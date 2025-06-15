@@ -16,6 +16,15 @@ interface SpeechResponse {
   timestamp: string;
 }
 
+/**
+ * Provides voice synthesis functionality for generating and playing speech from text.
+ *
+ * Exposes methods to generate speech audio from text, play or stop the audio, and manage error and loading states. Enforces usage limits for non-premium users.
+ *
+ * @returns An object with methods to generate and play speech, stop playback, clear errors, and state flags for generation, playback, and errors.
+ *
+ * @remark Non-premium users may be restricted by usage limits and prompted to upgrade for unlimited access.
+ */
 export function useVoiceSynthesis() {
   const { isPremium, trackFeatureUsage } = usePremium();
   const [isGenerating, setIsGenerating] = useState(false);

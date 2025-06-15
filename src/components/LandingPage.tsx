@@ -5,6 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 import LottieAvatar from './LottieAvatar';
 
+/**
+ * Renders the animated, multi-section landing page for the Zensai mental wellness app.
+ *
+ * The landing page introduces Zensai and its AI companion Zeno, highlighting features, benefits, testimonials, and calls to action. It includes animated backgrounds, smooth navigation, and interactive elements to engage users and encourage sign-up.
+ */
 export default function LandingPage() {
   const navigate = useNavigate();
 
