@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Volume2, VolumeX, Loader2 } from 'lucide-react';
 
 interface VoiceButtonProps {
+  isPremiumUser?: boolean;
+  onUpsellTrigger?: () => void;
   isGenerating: boolean;
   isPlaying: boolean;
   onPlay: () => void;
@@ -13,6 +15,8 @@ interface VoiceButtonProps {
 }
 
 export default function VoiceButton({
+  isPremiumUser = true,
+  onUpsellTrigger,
   isGenerating,
   isPlaying,
   onPlay,
@@ -34,6 +38,11 @@ export default function VoiceButton({
   };
 
   const handleClick = () => {
+    if (!isPremiumUser) {
+      if (onUpsellTrigger) onUpsellTrigger();
+      return;
+    }
+    
     if (isPlaying) {
       onStop();
     } else {
@@ -52,6 +61,7 @@ export default function VoiceButton({
   };
 
   const getTooltip = () => {
+    if (!isPremiumUser) return 'Premium feature - Upgrade to unlock';
     if (isGenerating) return 'Generating speech...';
     if (isPlaying) return 'Stop speech';
     return 'Play speech';
@@ -60,10 +70,10 @@ export default function VoiceButton({
   return (
     <motion.button
       onClick={handleClick}
-      disabled={disabled || isGenerating}
+      disabled={(!isPremiumUser && !onUpsellTrigger) || disabled || isGenerating}
       className={`
         ${sizeClasses[size]}
-        bg-zen-peach-400 hover:bg-zen-peach-500 
+        ${isPremiumUser ? 'bg-zen-peach-400 hover:bg-zen-peach-500' : 'bg-gray-400 hover:bg-gray-500'} 
         text-white rounded-full 
         transition-all duration-300 
         shadow-lg hover:shadow-xl
@@ -71,8 +81,8 @@ export default function VoiceButton({
         flex items-center justify-center
         ${className}
       `}
-      whileHover={!disabled && !isGenerating ? { scale: 1.1 } : {}}
-      whileTap={!disabled && !isGenerating ? { scale: 0.95 } : {}}
+      whileHover={!disabled && !isGenerating && (isPremiumUser || onUpsellTrigger) ? { scale: 1.1 } : {}}
+      whileTap={!disabled && !isGenerating && (isPremiumUser || onUpsellTrigger) ? { scale: 0.95 } : {}}
       title={getTooltip()}
       aria-label={getTooltip()}
     >

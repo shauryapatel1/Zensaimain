@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { usePremium } from './usePremium';
 import { MoodLevel } from '../types';
 
 interface MoodQuoteResponse {
@@ -14,8 +15,10 @@ interface MoodQuoteResponse {
 
 export function useMoodQuoteGenerator() {
   const { user } = useAuth();
+  const { isPremium, trackFeatureUsage } = usePremium();
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dailyUsageCount, setDailyUsageCount] = useState(0);
 
   const generateMoodQuote = async (
     mood: MoodLevel,
@@ -24,6 +27,13 @@ export function useMoodQuoteGenerator() {
   ): Promise<{ quote: string; attribution?: string } | null> => {
     setIsGenerating(true);
     setError(null);
+    
+    // Check if free user has reached daily limit
+    if (!isPremium && !trackFeatureUsage('mood-quote-generator')) {
+      setError('Daily limit reached. Upgrade to Premium for unlimited mood quotes.');
+      setIsGenerating(false);
+      return null;
+    }
 
     try {
       // Convert mood level to string
@@ -71,7 +81,8 @@ export function useMoodQuoteGenerator() {
   return {
     generateMoodQuote,
     isGenerating,
-    error
+    error,
+    dailyUsageCount
   };
 }
 

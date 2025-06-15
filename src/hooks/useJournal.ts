@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { usePremium } from './usePremium';
 import { MoodLevel } from '../types';
 
 interface JournalEntry {
@@ -43,6 +44,7 @@ interface Badge {
 
 export function useJournal() {
   const { user, isAuthenticated } = useAuth();
+  const { isPremium } = usePremium();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [badges, setBadges] = useState<Badge[]>([]);
@@ -85,6 +87,23 @@ export function useJournal() {
       setProfile(profileData);
 
       // Load recent journal entries
+      // For free users, limit to 30 days or 30 entries
+      let query = supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      
+      if (!isPremium) {
+        // Get entries from the last 30 days or the most recent 30 entries
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        query = query
+          .gt('created_at', thirtyDaysAgo.toISOString())
+          .limit(30);
+      }
+
       const { data: entriesData, error: entriesError } = await supabase
         .from('journal_entries')
         .select('*')
@@ -175,6 +194,11 @@ export function useJournal() {
 
     if (!content.trim()) {
       return { success: false, error: 'Entry content cannot be empty' };
+    }
+
+    // Check if photo uploads are allowed for free users
+    if (photoFile && !isPremium) {
+      return { success: false, error: 'Photo uploads are a premium feature. Please upgrade to add photos to your entries.' };
     }
 
     try {
@@ -303,6 +327,11 @@ export function useJournal() {
 
     if (!content.trim()) {
       return { success: false, error: 'Entry content cannot be empty' };
+    }
+
+    // Check if photo uploads are allowed for free users
+    if (photoFile && !isPremium) {
+      return { success: false, error: 'Photo uploads are a premium feature. Please upgrade to add photos to your entries.' };
     }
 
     try {
