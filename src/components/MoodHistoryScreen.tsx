@@ -294,18 +294,13 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
             
             <div className="flex items-center space-x-3">
               <Logo size="sm" className="mr-1" />
-              <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
-                <LottieAvatar mood={4} size="sm" variant="greeting" animate={false} />
-              </div>
-              <div>
-                <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200 flex items-center">
-                  <BarChart3 className="w-5 h-5 mr-2 text-zen-mint-500" />
-                  Journal Dashboard
-                </h1>
-                <p className="text-xs text-zen-sage-600 dark:text-gray-400">
-                  {filteredEntries.length} of {entries.length} entries
-                </p>
-              </div>
+              <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200 flex items-center">
+                <BarChart3 className="w-5 h-5 mr-2 text-zen-mint-500" />
+                Journal Dashboard
+              </h1>
+              <p className="text-xs text-zen-sage-600 dark:text-gray-400">
+                {filteredEntries.length} of {entries.length} entries
+              </p>
             </div>
           </div>
 

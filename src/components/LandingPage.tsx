@@ -111,13 +111,8 @@ export default function LandingPage() {
       >
         <div className="flex items-center space-x-3">
           <Logo size="md" />
-          <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
-            <LottieAvatar mood={4} size="sm" variant="greeting" animate={false} />
-          </div>
-          <div>
-            <h1 className="font-display font-bold text-zen-sage-800">Zensai</h1>
-            <p className="text-xs text-zen-sage-600">with Zeno</p>
-          </div>
+          <h1 className="font-display font-bold text-zen-sage-800">Zensai</h1>
+          <p className="text-xs text-zen-sage-600">with Zeno</p>
         </div>
 
         <div className="flex items-center space-x-6">
