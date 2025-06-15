@@ -686,4 +686,104 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w
+              className="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w-full shadow-2xl"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-zen-sage-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <LogOut className="w-8 h-8 text-zen-sage-600 dark:text-gray-300" />
+                </div>
+                <h3 className="text-xl font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-2">
+                  Sign Out
+                </h3>
+                <p className="text-zen-sage-600 dark:text-gray-400">
+                  Are you sure you want to sign out of your account?
+                </p>
+              </div>
+              
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="flex-1 px-4 py-3 bg-zen-sage-100 dark:bg-gray-700 text-zen-sage-700 dark:text-gray-300 rounded-2xl hover:bg-zen-sage-200 dark:hover:bg-gray-600 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex-1 px-4 py-3 bg-zen-sage-600 text-white rounded-2xl hover:bg-zen-sage-700 transition-colors font-medium"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Account Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w-full shadow-2xl"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertTriangle className="w-8 h-8 text-red-600" />
+                </div>
+                <h3 className="text-xl font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-2">
+                  Delete Account
+                </h3>
+                <p className="text-zen-sage-600 dark:text-gray-400 mb-4">
+                  This action cannot be undone. All your journal entries, progress, and data will be permanently deleted.
+                </p>
+                
+                <div className="text-left">
+                  <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
+                    Type "DELETE" to confirm:
+                  </label>
+                  <input
+                    type="text"
+                    value={deleteConfirmText}
+                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                    className="w-full px-4 py-3 border border-red-300 rounded-2xl focus:ring-2 focus:ring-red-400 focus:border-transparent bg-white dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200"
+                    placeholder="DELETE"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setDeleteConfirmText('');
+                  }}
+                  className="flex-1 px-4 py-3 bg-zen-sage-100 dark:bg-gray-700 text-zen-sage-700 dark:text-gray-300 rounded-2xl hover:bg-zen-sage-200 dark:hover:bg-gray-600 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleteConfirmText !== 'DELETE'}
+                  className="flex-1 px-4 py-3 bg-red-600 text-white rounded-2xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                >
+                  Delete Account
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
