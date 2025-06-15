@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { usePremium } from './usePremium';
 import { MoodLevel } from '../types';
 
 interface AffirmationResponse {
@@ -13,6 +14,7 @@ interface AffirmationResponse {
 
 export function useAffirmationGenerator() {
   const { user } = useAuth();
+  const { isPremium, hasReachedDailyLimit, incrementUsageCounter } = usePremium();
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,11 +26,22 @@ export function useAffirmationGenerator() {
       setError('Journal entry is required for affirmation generation');
       return null;
     }
+    
+    // Check if user has reached daily limit for affirmations
+    if (!isPremium && hasReachedDailyLimit('affirmation')) {
+      setError('You\'ve reached your daily limit for AI affirmations. Upgrade to Premium for unlimited affirmations!');
+      return null;
+    }
 
     setIsGenerating(true);
     setError(null);
 
     try {
+      // Increment usage counter for free users
+      if (!isPremium) {
+        incrementUsageCounter('affirmation');
+      }
+      
       // Convert mood level to string
       const moodString = getMoodString(mood);
 

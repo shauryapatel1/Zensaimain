@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { usePremium } from './usePremium';
 
 interface VoiceSettings {
   stability?: number;
@@ -16,6 +17,7 @@ interface SpeechResponse {
 }
 
 export function useVoiceSynthesis() {
+  const { isPremium } = usePremium();
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +27,12 @@ export function useVoiceSynthesis() {
     text: string,
     voiceSettings?: VoiceSettings
   ): Promise<boolean> => {
+    // Check if user has premium
+    if (!isPremium) {
+      setError('Voice synthesis is a premium feature. Upgrade to access this feature.');
+      return false;
+    }
+    
     if (!text.trim()) {
       setError('Text is required for speech generation');
       return false;

@@ -24,6 +24,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabase';
 import Logo from './Logo';
+import { usePremium } from '../hooks/usePremium';
 import { useNavigate } from 'react-router-dom';
 import LottieAvatar from './LottieAvatar';
 
@@ -44,6 +45,7 @@ interface UserProfile {
 export default function SettingsScreen({ onBack }: SettingsScreenProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { isPremium, isPremiumPlus, showUpsellModal } = usePremium();
   const { isDarkMode, setDarkMode } = useTheme();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,6 +62,7 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
   
   // Preferences state
   const [notifications, setNotifications] = useState(true);
+  const [selectedFont, setSelectedFont] = useState('default');
   
   // Modal states
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -666,6 +669,61 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
                     <Crown className="w-4 h-4" />
                     <span>{profile?.subscription_status === 'premium' ? 'Manage Subscription' : 'Upgrade to Premium'}</span>
                   </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Customization Section */}
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-600/20">
+              <h3 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center">
+                <Sparkles className="w-5 h-5 mr-2 text-zen-mint-500" />
+                Customization
+                <span className="ml-2 text-xs font-normal text-white bg-yellow-500 px-2 py-0.5 rounded-full">
+                  Premium
+                </span>
+              </h3>
+              
+              <div className="space-y-4">
+                {/* Font Selection */}
+                <div className="p-4 bg-zen-sage-50 dark:bg-gray-700 rounded-2xl">
+                  <h4 className="font-medium text-zen-sage-800 dark:text-gray-200 mb-2">Font Style</h4>
+                  <p className="text-sm text-zen-sage-600 dark:text-gray-400 mb-4">
+                    Choose your preferred font for journaling and reading entries.
+                  </p>
+                  
+                  <div className="relative">
+                    <select
+                      value={selectedFont}
+                      onChange={(e) => setSelectedFont(e.target.value)}
+                      disabled={!isPremium}
+                      className={`w-full px-4 py-3 border border-zen-sage-200 dark:border-gray-600 rounded-xl appearance-none bg-white dark:bg-gray-600 text-zen-sage-800 dark:text-gray-200 pr-10 ${
+                        !isPremium ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      <option value="default">Default (Inter & Poppins)</option>
+                      <option value="serif">Serif (Merriweather)</option>
+                      <option value="mono">Monospace (JetBrains Mono)</option>
+                      <option value="handwritten">Handwritten (Caveat)</option>
+                      <option value="elegant">Elegant (Playfair Display)</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <ChevronDown className="w-5 h-5 text-zen-sage-400 dark:text-gray-500" />
+                    </div>
+                  </div>
+                  
+                  {!isPremium && (
+                    <div className="mt-3 flex justify-end">
+                      <button
+                        onClick={() => showUpsellModal(
+                          'Font Customization',
+                          'Personalize your journaling experience with a selection of beautiful fonts.'
+                        )}
+                        className="text-sm text-zen-mint-600 hover:text-zen-mint-700 font-medium"
+                      >
+                        Upgrade to Premium
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
