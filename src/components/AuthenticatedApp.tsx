@@ -23,6 +23,9 @@ import ToastNotification, { ToastType } from './ToastNotification';
 import { MoodLevel } from '../types';
 import { moods } from '../data/moods';
 
+// Define available Lottie animation variants
+const LOTTIE_VARIANTS = ['greeting', 'journaling', 'typing', 'coding', 'music'];
+
 export default function AuthenticatedApp() {
   const { user, logout } = useAuth();
   const { 
@@ -60,6 +63,7 @@ export default function AuthenticatedApp() {
   const [showMoodQuote, setShowMoodQuote] = useState(false);
   const [isTextareaFocused, setIsTextareaFocused] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
+  const [randomZenoVariant, setRandomZenoVariant] = useState<string>('greeting');
 
   // Premium features
   const { 
@@ -97,6 +101,12 @@ export default function AuthenticatedApp() {
   const totalEntries = getTotalEntries();
   const alreadyJournaledToday = hasEntryToday();
   const currentMood = selectedMood ? moods.find(m => m.level === selectedMood) : undefined;
+
+  // Set a random Zeno variant on component mount
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * LOTTIE_VARIANTS.length);
+    setRandomZenoVariant(LOTTIE_VARIANTS[randomIndex]);
+  }, []);
 
   // Initialize previous badges on first load
   useEffect(() => {
@@ -729,7 +739,12 @@ export default function AuthenticatedApp() {
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <div className="relative">
-            <LottieAvatar variant={zenoVariant} size="lg" />
+            <LottieAvatar 
+              variant={isSubmitting || isGeneratingAffirmation || isGeneratingSpeech || journalEntry.length > 0 || selectedMood 
+                ? zenoVariant 
+                : randomZenoVariant} 
+              size="lg" 
+            />
             {/* Speech bubble for contextual messages */}
             {(showMoodConfirmation || showAffirmation || showMoodQuote) && (
               <motion.div

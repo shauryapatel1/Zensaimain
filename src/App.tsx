@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import Footer from '../components/Footer';
 import AuthScreen from './components/AuthScreen';
 import AuthenticatedApp from './components/AuthenticatedApp';
 import LandingPage from './components/LandingPage';
@@ -85,6 +86,7 @@ function AppContent() {
           } 
         />
       </Routes>
+      <Footer />
     </AnimatePresence>
   );
 }

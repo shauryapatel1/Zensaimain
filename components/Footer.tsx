@@ -1,11 +1,13 @@
 import Link from "next/link";
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-zen-cream/60 backdrop-blur py-4">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 sm:flex-row sm:justify-between">
         <p className="font-medium">
-          © {new Date().getFullYear()} Zensai • Built with Bolt
+          © {currentYear} Zensai • Your Mental Wellness Companion
         </p>
 
         <nav className="flex gap-6 flex-wrap justify-center">

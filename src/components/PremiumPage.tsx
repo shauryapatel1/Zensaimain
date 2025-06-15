@@ -20,31 +20,32 @@ export default function PremiumPage({ onBack }: PremiumPageProps) {
   const plans = [
     {
       id: 'monthly',
-      name: 'Monthly',
+      name: 'Monthly Premium',
       price: '$8.99',
       period: 'per month',
       features: [
-        'Unlimited journal entries',
-        'Advanced AI mood analysis',
-        'Personalized affirmations',
-        'Voice playback of affirmations',
-        'Photo attachments',
-        'Premium badge collection',
+        'Unlimited journal entries with photo attachments',
+        'Advanced AI mood analysis & personalized insights',
+        'Custom affirmations with voice playback',
+        'Complete journal history access',
+        'Premium badge collection & achievements',
+        'Priority customer support',
       ],
       popular: false,
       priceId: import.meta.env.VITE_STRIPE_PRICE_ID_MONTHLY,
     },
     {
       id: 'yearly',
-      name: 'Yearly',
-      price: '$60',
+      name: 'Yearly Premium',
+      price: '$59.99',
       period: 'per year',
       features: [
-        'Everything in Monthly',
-        'Save 44% compared to monthly',
-        'Priority support',
-        'Early access to new features',
-        'Exclusive yearly subscriber badge',
+        'All Monthly Premium features included',
+        'Save over 44% compared to monthly plan',
+        'VIP priority support with 24-hour response time',
+        'Early access to all new features and updates',
+        'Exclusive "Premium Plus" badge for your collection',
+        'Advanced analytics and mood trend insights',
       ],
       popular: true,
       priceId: import.meta.env.VITE_STRIPE_PRICE_ID_YEARLY,
@@ -347,11 +348,11 @@ export default function PremiumPage({ onBack }: PremiumPageProps) {
                 <div className="w-12 h-12 bg-zen-mint-100 dark:bg-zen-mint-900/30 rounded-full flex items-center justify-center mb-4">
                   <Sparkles className="w-6 h-6 text-zen-mint-500" />
                 </div>
-                <h4 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-2">
-                  Advanced AI Insights
+                <h4 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-3">
+                  Personalized AI Insights
                 </h4>
                 <p className="text-zen-sage-600 dark:text-gray-400">
-                  Get deeper analysis of your moods and journaling patterns with our premium AI algorithms.
+                  Receive tailored mood analysis, personalized affirmations, and deep emotional pattern insights powered by advanced AI.
                 </p>
               </div>
               
@@ -359,11 +360,11 @@ export default function PremiumPage({ onBack }: PremiumPageProps) {
                 <div className="w-12 h-12 bg-zen-peach-100 dark:bg-zen-peach-900/30 rounded-full flex items-center justify-center mb-4">
                   <Zap className="w-6 h-6 text-zen-peach-500" />
                 </div>
-                <h4 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-2">
-                  Unlimited Entries
+                <h4 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-3">
+                  Unlimited Journal Features
                 </h4>
                 <p className="text-zen-sage-600 dark:text-gray-400">
-                  Journal as much as you want with unlimited entries and photo attachments.
+                  Enjoy unlimited journal entries with photo attachments, complete history access, and voice-enabled affirmations.
                 </p>
               </div>
               
@@ -371,11 +372,11 @@ export default function PremiumPage({ onBack }: PremiumPageProps) {
                 <div className="w-12 h-12 bg-zen-lavender-100 dark:bg-zen-lavender-900/30 rounded-full flex items-center justify-center mb-4">
                   <Shield className="w-6 h-6 text-zen-lavender-500" />
                 </div>
-                <h4 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-2">
-                  Premium Support
+                <h4 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-3">
+                  VIP Support & Early Access
                 </h4>
                 <p className="text-zen-sage-600 dark:text-gray-400">
-                  Get priority support and early access to new features as they're developed.
+                  Receive priority customer support and exclusive early access to all new features before they're released to everyone else.
                 </p>
               </div>
             </div>
@@ -398,8 +399,8 @@ export default function PremiumPage({ onBack }: PremiumPageProps) {
                 <h4 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-2">
                   What happens after my 7-day free trial?
                 </h4>
-                <p className="text-zen-sage-600 dark:text-gray-400">
-                  After your trial ends, you'll be charged for your selected plan. You can cancel anytime before the trial ends to avoid being charged.
+                <p className="text-zen-sage-600 dark:text-gray-400 leading-relaxed">
+                  After your trial ends, you'll be charged for your selected plan. You can cancel anytime before the trial ends to avoid being charged. We'll send you a reminder email before your trial expires.
                 </p>
               </div>
               
@@ -407,8 +408,8 @@ export default function PremiumPage({ onBack }: PremiumPageProps) {
                 <h4 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-2">
                   Can I switch between monthly and yearly plans?
                 </h4>
-                <p className="text-zen-sage-600 dark:text-gray-400">
-                  Yes, you can switch plans at any time. If you upgrade from monthly to yearly, you'll be given a prorated credit for your remaining monthly subscription.
+                <p className="text-zen-sage-600 dark:text-gray-400 leading-relaxed">
+                  Yes, you can switch plans at any time. If you upgrade from monthly to yearly, you'll receive a prorated credit for your remaining monthly subscription. Switching from yearly to monthly will take effect at your next renewal date.
                 </p>
               </div>
               
@@ -416,8 +417,8 @@ export default function PremiumPage({ onBack }: PremiumPageProps) {
                 <h4 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-2">
                   How do I cancel my subscription?
                 </h4>
-                <p className="text-zen-sage-600 dark:text-gray-400">
-                  You can cancel your subscription anytime from the Settings page. Your premium features will remain active until the end of your current billing period.
+                <p className="text-zen-sage-600 dark:text-gray-400 leading-relaxed">
+                  You can cancel your subscription anytime from the Settings page or by contacting our support team. Your premium features will remain active until the end of your current billing period, and you won't be charged again.
                 </p>
               </div>
               
@@ -425,8 +426,8 @@ export default function PremiumPage({ onBack }: PremiumPageProps) {
                 <h4 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-2">
                   Is my payment information secure?
                 </h4>
-                <p className="text-zen-sage-600 dark:text-gray-400">
-                  Yes, all payments are processed securely through Stripe. We never store your credit card information on our servers.
+                <p className="text-zen-sage-600 dark:text-gray-400 leading-relaxed">
+                  Absolutely. All payments are processed securely through Stripe, a PCI-DSS Level 1 certified payment processor. We never store your credit card information on our servers, ensuring maximum security for your financial data.
                 </p>
               </div>
             </div>
