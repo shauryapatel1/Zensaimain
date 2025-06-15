@@ -11,53 +11,53 @@ export default function LandingPage() {
   const features = [
     {
       icon: Heart,
-      title: "Daily Mood Tracking",
-      description: "Track your emotions with Zeno's gentle guidance and build awareness of your mental patterns."
+      title: "Intelligent Mood Tracking",
+      description: "Track your emotions with Zeno's gentle guidance and AI-powered insights that help you understand your emotional patterns."
     },
     {
       icon: Sparkles,
-      title: "AI-Powered Insights",
-      description: "Receive personalized affirmations and mood analysis to support your wellness journey."
+      title: "Personalized AI Companion",
+      description: "Receive thoughtful prompts, personalized affirmations, and mood analysis tailored to your unique wellness journey."
     },
     {
       icon: Calendar,
-      title: "Streak Building",
-      description: "Build healthy habits with daily journaling streaks and celebrate your consistency."
+      title: "Mindful Habit Building",
+      description: "Build lasting wellness habits with daily journaling streaks, achievement badges, and gentle encouragement from Zeno."
     },
     {
       icon: TrendingUp,
-      title: "Progress Visualization",
-      description: "See your emotional growth over time with beautiful charts and meaningful statistics."
+      title: "Growth Visualization",
+      description: "See your emotional growth over time with beautiful charts, meaningful statistics, and insights into your progress."
     }
   ];
 
   const testimonials = [
     {
       name: "Sarah Chen",
-      role: "Mindfulness Practitioner",
-      content: "Zensai has transformed my daily reflection practice. Zeno feels like a caring friend who truly understands.",
+      role: "Wellness Enthusiast",
+      content: "Zensai has transformed my daily reflection practice. Zeno feels like a caring friend who truly understands my journey.",
       rating: 5
     },
     {
       name: "Marcus Rodriguez",
-      role: "Wellness Coach",
-      content: "The AI insights are incredibly thoughtful. It's like having a personal wellness companion available 24/7.",
+      role: "Mental Health Advocate",
+      content: "The AI insights are incredibly thoughtful and personalized. It's like having a mindfulness coach available 24/7.",
       rating: 5
     },
     {
       name: "Emma Thompson",
-      role: "Student",
-      content: "I love how gentle and encouraging Zeno is. It's helped me build a consistent journaling habit for the first time.",
+      role: "Busy Professional",
+      content: "I love how gentle and encouraging Zeno is. It's helped me build a consistent journaling habit for the first time in years.",
       rating: 5
     }
   ];
 
   const benefits = [
-    "Reduce stress and anxiety through mindful reflection",
-    "Build emotional intelligence and self-awareness",
-    "Create lasting positive habits with gentle guidance",
-    "Track your mental wellness journey over time",
-    "Receive personalized support when you need it most"
+    "Reduce stress and anxiety through mindful daily reflection",
+    "Build emotional intelligence and deeper self-awareness",
+    "Create lasting positive habits with gentle, consistent guidance",
+    "Track your mental wellness journey with meaningful insights",
+    "Receive personalized support exactly when you need it most"
   ];
 
   return (
@@ -120,13 +120,13 @@ export default function LandingPage() {
             onClick={() => navigate('/auth')}
             className="text-zen-sage-600 hover:text-zen-sage-800 font-medium transition-colors hover:underline"
           >
-            Login
+            Sign In
           </button>
           <button
             onClick={() => navigate('/auth')}
             className="px-6 py-2 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white font-medium rounded-full hover:from-zen-mint-500 hover:to-zen-mint-600 transition-all duration-300 shadow-lg hover:shadow-xl"
           >
-            Get Started
+            Start Free
           </button>
         </div>
       </motion.nav>
@@ -147,9 +147,9 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
-              Find Your Zen
+              Your Daily Path to
               <br />
-              <span className="text-zen-mint-500">Every Day</span>
+              <span className="text-zen-mint-500">Inner Peace</span>
             </motion.h1>
 
             <motion.p
@@ -158,8 +158,9 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
-              Your daily journey to mindfulness with Zeno, your caring fox companion.
-              Track moods, reflect deeply, and grow emotionally with AI-powered insights.
+              Transform your mental wellness with Zeno, your caring AI companion. 
+              Experience personalized journaling, mood insights, and gentle guidance 
+              designed to nurture your emotional growth every day.
             </motion.p>
 
             <motion.div
@@ -172,7 +173,7 @@ export default function LandingPage() {
                 onClick={() => navigate('/auth')}
                 className="group px-8 py-4 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white font-semibold rounded-2xl hover:from-zen-mint-500 hover:to-zen-mint-600 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 flex items-center justify-center space-x-2"
               >
-                <span>Start Your Journey</span>
+                <span>Begin Your Journey</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               
@@ -183,7 +184,7 @@ export default function LandingPage() {
                 }}
                 className="px-8 py-4 border-2 border-zen-sage-300 text-zen-sage-700 font-semibold rounded-2xl hover:bg-zen-sage-50 transition-all duration-300"
               >
-                Learn More
+                Discover Features
               </button>
             </motion.div>
 
@@ -200,7 +201,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-center space-x-1">
                 <Users className="w-4 h-4" />
-                <span>10k+ Users</span>
+                <span>Trusted by Thousands</span>
               </div>
               <div className="flex items-center space-x-1">
                 <Star className="w-4 h-4 fill-current text-zen-peach-400" />
@@ -285,7 +286,7 @@ export default function LandingPage() {
               </h2>
               <p className="text-xl text-zen-sage-600 mb-8">
                 Join thousands who have discovered the power of mindful journaling
-                with Zeno's compassionate guidance.
+                with Zeno's compassionate guidance and AI-powered insights.
               </p>
 
               <div className="space-y-4">
@@ -328,7 +329,7 @@ export default function LandingPage() {
                 <div className="bg-zen-mint-50 rounded-2xl p-4 mb-4">
                   <p className="text-zen-sage-700 italic">
                     "How are you feeling today? I'm here to listen and support you
-                    on your journey to wellness."
+                    on your journey to wellness and inner peace."
                   </p>
                 </div>
                 
@@ -363,7 +364,7 @@ export default function LandingPage() {
               <span className="text-zen-lavender-500"> Community</span>
             </h2>
             <p className="text-xl text-zen-sage-600">
-              See how Zensai has transformed lives around the world
+              See how Zensai has transformed lives and wellness journeys around the world
             </p>
           </motion.div>
 
@@ -421,7 +422,7 @@ export default function LandingPage() {
             
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
               Join Zeno today and discover the transformative power of mindful journaling.
-              Your path to emotional wellness starts with a single entry.
+              Your path to emotional wellness and inner peace starts with a single entry.
             </p>
             
             <motion.button
@@ -430,7 +431,7 @@ export default function LandingPage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <span>Start Free Today</span>
+              <span>Start Your Journey Free</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </motion.button>
             
@@ -440,8 +441,6 @@ export default function LandingPage() {
           </motion.div>
         </div>
       </section>
-
-      {/* Footer */}
     </div>
   );
 }

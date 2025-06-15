@@ -10,7 +10,7 @@ export default function PrivacyPolicy() {
     <div className="min-h-screen bg-gradient-to-br from-zen-mint-50 via-zen-cream-50 to-zen-lavender-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Head>
         <title>Privacy Policy | Zensai</title>
-        <meta name="description" content="Zensai Privacy Policy - How we protect your data" />
+        <meta name="description" content="Zensai Privacy Policy - How we protect your data and respect your privacy" />
       </Head>
 
       {/* Floating Background Elements */}
@@ -96,12 +96,11 @@ export default function PrivacyPolicy() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <p className="text-zen-sage-500 dark:text-gray-400 italic">Last updated: 12 June 2025</p>
+            <p className="text-zen-sage-500 dark:text-gray-400 italic">Last updated: January 15, 2025</p>
 
-            <p className="text-zen-sage-700 dark:text-gray-300">Zensai ("<strong>we</strong>", "<strong>us</strong>", or "<strong>our</strong>") respects your privacy.<br />
-            This Policy explains how we collect, store, and use your data when you use the Zensai web or mobile app.</p>
+            <p className="text-zen-sage-700 dark:text-gray-300">Zensai ("<strong>we</strong>", "<strong>us</strong>", or "<strong>our</strong>") is committed to protecting your privacy and personal information. This Privacy Policy explains how we collect, use, store, and protect your data when you use the Zensai application and services.</p>
 
-            <h2 className="text-zen-sage-800 dark:text-gray-200">Data We Collect</h2>
+            <h2 className="text-zen-sage-800 dark:text-gray-200">Information We Collect</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-zen-sage-700 dark:text-gray-300">
                 <thead>
@@ -113,57 +112,85 @@ export default function PrivacyPolicy() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Account data</td>
-                    <td>Email address, optional display name</td>
-                    <td>Log-in &amp; personalization</td>
+                    <td>Account Information</td>
+                    <td>Email address, display name (optional)</td>
+                    <td>Account creation, authentication, and personalization</td>
                   </tr>
                   <tr>
-                    <td>Journal entries</td>
-                    <td>Text you write, optional mood label</td>
-                    <td>Core feature: reflections &amp; insights</td>
+                    <td>Journal Content</td>
+                    <td>Text entries, mood selections, optional photos, entry titles</td>
+                    <td>Core journaling functionality, mood tracking, and AI-powered insights</td>
                   </tr>
                   <tr>
-                    <td>Usage data</td>
-                    <td>Anonymous analytics events (page views, button clicks)</td>
-                    <td>Improve product experience</td>
+                    <td>Usage Analytics</td>
+                    <td>Anonymous usage patterns, feature interactions, performance metrics</td>
+                    <td>Improve app performance and user experience</td>
+                  </tr>
+                  <tr>
+                    <td>Subscription Data</td>
+                    <td>Payment information (processed by Stripe), subscription status</td>
+                    <td>Premium feature access and billing management</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             <blockquote>
-              <p className="text-zen-sage-700 dark:text-gray-300"><strong>We never sell or rent your personal data.</strong></p>
+              <p className="text-zen-sage-700 dark:text-gray-300"><strong>We never sell, rent, or share your personal data with third parties for marketing purposes.</strong></p>
             </blockquote>
 
             <h2 className="text-zen-sage-800 dark:text-gray-200">How We Use AI Services</h2>
             <ul>
-              <li className="text-zen-sage-700 dark:text-gray-300"><strong>OpenAI / Anthropic</strong> models process your journal text <em>temporarily</em> to generate prompts, mood labels, and affirmations.</li>
-              <li className="text-zen-sage-700 dark:text-gray-300"><strong>ElevenLabs</strong> converts affirmation text to speech.</li>
+              <li className="text-zen-sage-700 dark:text-gray-300"><strong>OpenAI</strong> processes your journal text temporarily to generate personalized prompts, mood analysis, and affirmations. Your data is not stored by OpenAI.</li>
+              <li className="text-zen-sage-700 dark:text-gray-300"><strong>ElevenLabs</strong> converts affirmation text to speech for premium users. Audio is generated on-demand and not stored.</li>
             </ul>
 
-            <p className="text-zen-sage-700 dark:text-gray-300">These third-party processors do <strong>not</strong> store your journal text after the request completes.</p>
+            <p className="text-zen-sage-700 dark:text-gray-300">These AI services process your content only when you actively use features that require them, and your data is not retained by these providers after processing.</p>
 
             <h2 className="text-zen-sage-800 dark:text-gray-200">Data Storage & Security</h2>
-            <p className="text-zen-sage-700 dark:text-gray-300">All data is stored in <strong>Supabase</strong> (encrypted at rest, SOC-2 certified).<br />
-            Access is restricted to your authenticated account via row-level-security (RLS).</p>
-
-            <h2 className="text-zen-sage-800 dark:text-gray-200">Your Controls</h2>
+            <p className="text-zen-sage-700 dark:text-gray-300">Your data is securely stored using <strong>Supabase</strong>, which provides:</p>
             <ul>
-              <li className="text-zen-sage-700 dark:text-gray-300"><strong>Export</strong>: Request a JSON export of your journal at any time (email support@zensai.app).</li>
-              <li className="text-zen-sage-700 dark:text-gray-300"><strong>Delete</strong>: Delete entries individually in <em>History</em> or ask us to wipe your account.</li>
-              <li className="text-zen-sage-700 dark:text-gray-300"><strong>Opt-out of analytics</strong>: Toggle "Anonymous analytics" in Settings.</li>
+              <li className="text-zen-sage-700 dark:text-gray-300">Encryption at rest and in transit</li>
+              <li className="text-zen-sage-700 dark:text-gray-300">SOC 2 Type II compliance</li>
+              <li className="text-zen-sage-700 dark:text-gray-300">Row-level security ensuring only you can access your data</li>
+              <li className="text-zen-sage-700 dark:text-gray-300">Regular security audits and monitoring</li>
             </ul>
 
-            <h2 className="text-zen-sage-800 dark:text-gray-200">Cookies</h2>
-            <p className="text-zen-sage-700 dark:text-gray-300">We use a single secure cookie for session management; no third-party ad cookies.</p>
+            <h2 className="text-zen-sage-800 dark:text-gray-200">Your Privacy Rights</h2>
+            <ul>
+              <li className="text-zen-sage-700 dark:text-gray-300"><strong>Access</strong>: View and export all your journal data at any time through the app settings</li>
+              <li className="text-zen-sage-700 dark:text-gray-300"><strong>Delete</strong>: Remove individual entries or delete your entire account and all associated data</li>
+              <li className="text-zen-sage-700 dark:text-gray-300"><strong>Control</strong>: Manage your privacy preferences and opt out of analytics in app settings</li>
+              <li className="text-zen-sage-700 dark:text-gray-300"><strong>Portability</strong>: Export your data in JSON format for use elsewhere</li>
+            </ul>
 
-            <h2 className="text-zen-sage-800 dark:text-gray-200">Contact</h2>
-            <p className="text-zen-sage-700 dark:text-gray-300">Questions? Email <strong>support@zensai.app</strong>.</p>
+            <h2 className="text-zen-sage-800 dark:text-gray-200">Cookies and Tracking</h2>
+            <p className="text-zen-sage-700 dark:text-gray-300">We use minimal cookies for essential functionality:</p>
+            <ul>
+              <li className="text-zen-sage-700 dark:text-gray-300">Authentication cookies to keep you signed in</li>
+              <li className="text-zen-sage-700 dark:text-gray-300">Preference cookies to remember your settings</li>
+              <li className="text-zen-sage-700 dark:text-gray-300">No third-party advertising or tracking cookies</li>
+            </ul>
+
+            <h2 className="text-zen-sage-800 dark:text-gray-200">Data Retention</h2>
+            <p className="text-zen-sage-700 dark:text-gray-300">We retain your data only as long as your account is active. When you delete your account:</p>
+            <ul>
+              <li className="text-zen-sage-700 dark:text-gray-300">All journal entries and personal data are permanently deleted within 30 days</li>
+              <li className="text-zen-sage-700 dark:text-gray-300">Anonymous usage analytics may be retained for product improvement</li>
+              <li className="text-zen-sage-700 dark:text-gray-300">Legal or regulatory requirements may require longer retention in some cases</li>
+            </ul>
+
+            <h2 className="text-zen-sage-800 dark:text-gray-200">Children's Privacy</h2>
+            <p className="text-zen-sage-700 dark:text-gray-300">Zensai is not intended for children under 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected such information, we will delete it immediately.</p>
+
+            <h2 className="text-zen-sage-800 dark:text-gray-200">Changes to This Policy</h2>
+            <p className="text-zen-sage-700 dark:text-gray-300">We may update this Privacy Policy from time to time. We will notify you of any material changes by email or through the app. Your continued use of Zensai after such changes constitutes acceptance of the updated policy.</p>
+
+            <h2 className="text-zen-sage-800 dark:text-gray-200">Contact Us</h2>
+            <p className="text-zen-sage-700 dark:text-gray-300">If you have questions about this Privacy Policy or your data, please contact us at <strong>privacy@zensai.app</strong>.</p>
           </motion.div>
         </motion.div>
       </main>
-
-      {/* Footer */}
     </div>
   );
 }
