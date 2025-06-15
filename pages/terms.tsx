@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Head from 'next/head';
+import Logo from '../src/components/Logo';
 
 export default function TermsOfService() {
   return (
@@ -68,6 +69,7 @@ export default function TermsOfService() {
               <span className="text-sm font-medium">Back to Home</span>
             </motion.a>
           </Link>
+          <Logo size="md" className="ml-4" />
         </div>
       </header>
 

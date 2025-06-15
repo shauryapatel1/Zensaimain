@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut, Calendar, Heart, Sparkles, AlertCircle, CheckCircle, Trophy, Target, BarChart3, BookOpen, Lightbulb, RefreshCw, Save, Volume2, Settings } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useJournal } from '../hooks/useJournal';
+import Logo from './Logo';
 import { usePromptGenerator } from '../hooks/usePromptGenerator';
 import { useMoodAnalyzer } from '../hooks/useMoodAnalyzer';
 import { useAffirmationGenerator } from '../hooks/useAffirmationGenerator';
@@ -580,9 +581,12 @@ export default function AuthenticatedApp() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div>
-          <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200">Zensai</h1>
-          <p className="text-xs text-zen-sage-600 dark:text-gray-400">with Zeno</p>
+        <div className="flex items-center space-x-3">
+          <Logo size="md" />
+          <div>
+            <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200">Zensai</h1>
+            <p className="text-xs text-zen-sage-600 dark:text-gray-400">with Zeno</p>
+          </div>
         </div>
 
         <div className="flex items-center space-x-2">

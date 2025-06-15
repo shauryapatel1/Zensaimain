@@ -22,6 +22,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabase';
+import Logo from './Logo';
 import LottieAvatar from './LottieAvatar';
 
 interface SettingsScreenProps {
@@ -339,7 +340,8 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
             
             {/* Logo with Zeno */}
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
+              <Logo size="sm" className="mr-1" />
+              <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
                 <LottieAvatar mood={4} size="sm" variant="greeting" animate={false} />
               </div>
               <div>

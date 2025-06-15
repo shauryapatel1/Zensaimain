@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Sparkles, Calendar, TrendingUp, Users, Shield, ArrowRight, Star, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Logo from './Logo';
 import LottieAvatar from './LottieAvatar';
 
 export default function LandingPage() {
@@ -109,7 +110,8 @@ export default function LandingPage() {
         transition={{ duration: 0.6 }}
       >
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
+          <Logo size="md" />
+          <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
             <LottieAvatar mood={4} size="sm" variant="greeting" animate={false} />
           </div>
           <div>

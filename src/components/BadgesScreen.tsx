@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Trophy, Star, Filter, Search, Award, Target, Calendar, Sparkles } from 'lucide-react';
 import { useJournal } from '../hooks/useJournal';
+import Logo from './Logo';
 import LottieAvatar from './LottieAvatar';
 
 interface BadgesScreenProps {
@@ -138,7 +139,8 @@ export default function BadgesScreen({ onBack }: BadgesScreenProps) {
             </button>
             
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
+              <Logo size="sm" className="mr-1" />
+              <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
                 <LottieAvatar mood={4} size="sm" variant="greeting" animate={false} />
               </div>
               <div>
