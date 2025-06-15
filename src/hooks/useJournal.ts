@@ -32,11 +32,11 @@ interface Profile {
 
 interface Badge {
   id: string;
-  name: string;
-  description: string;
-  icon: string;
-  category: string;
-  rarity: string;
+  badge_name: string;
+  badge_description: string;
+  badge_icon: string;
+  badge_category: string;
+  badge_rarity: string;
   earned: boolean;
   earned_at: string | null;
   progress_current: number;

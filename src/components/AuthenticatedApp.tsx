@@ -113,15 +113,15 @@ export default function AuthenticatedApp() {
       
       if (newBadges.length > 0) {
         // Show notification for the first new badge
-        const newBadge = badges.find(b => b.id === newBadges[0]);
+        const newBadge = badges.find(b => b.id === newBadges[0] && b.earned);
         if (newBadge) {
           showToast(
-            `Congratulations! You've earned the "${newBadge.name}" badge!`,
+            `Congratulations! You've earned the "${newBadge.badge_name}" badge!`,
             'badge',
             {
-              icon: newBadge.icon,
-              name: newBadge.name,
-              rarity: newBadge.rarity
+              icon: newBadge.badge_icon,
+              name: newBadge.badge_name,
+              rarity: newBadge.badge_rarity
             }
           );
         }
