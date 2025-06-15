@@ -18,9 +18,9 @@ export default function Logo({ size = 'md', className = '', animate = true }: Lo
   
   // Position the avatar to show only Zeno's head
   const lottiePositioning = {
-    sm: '-top-6 -left-5',
-    md: '-top-8 -left-8',
-    lg: '-top-10 -left-10'
+    sm: '-top-6 -left-6',
+    md: '-top-8 -left-9',
+    lg: '-top-10 -left-12'
   };
 
   if (animate) {
