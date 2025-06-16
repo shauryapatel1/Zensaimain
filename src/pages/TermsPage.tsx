@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import Logo from '../src/components/Logo';
+import Logo from '../components/Logo';
 
 const MotionLink = motion(Link);
 
