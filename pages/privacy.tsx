@@ -1,18 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import Head from 'next/head';
+import { Link } from 'react-router-dom';
 import Logo from '../src/components/Logo';
+
+const MotionLink = motion(Link);
 
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-zen-mint-50 via-zen-cream-50 to-zen-lavender-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <Head>
-        <title>Privacy Policy | Zensai</title>
-        <meta name="description" content="Zensai Privacy Policy - How we protect your data and respect your privacy" />
-      </Head>
-
       {/* Floating Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -56,19 +52,18 @@ export default function PrivacyPolicy() {
       {/* Header */}
       <header className="relative z-10 p-4 bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm border-b border-white/20 dark:border-gray-600/20">
         <div className="container mx-auto max-w-4xl flex items-center">
-          <Link href="/" passHref>
-            <motion.a
-              className="flex items-center space-x-2 px-4 py-2 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm text-zen-sage-600 dark:text-gray-300 hover:text-zen-sage-800 dark:hover:text-gray-100 hover:bg-white/90 dark:hover:bg-gray-600/90 rounded-full transition-all duration-300 shadow-lg"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm font-medium">Back to Home</span>
-            </motion.a>
-          </Link>
+          <MotionLink
+            to="/"
+            className="flex items-center space-x-2 px-4 py-2 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm text-zen-sage-600 dark:text-gray-300 hover:text-zen-sage-800 dark:hover:text-gray-100 hover:bg-white/90 dark:hover:bg-gray-600/90 rounded-full transition-all duration-300 shadow-lg"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">Back to Home</span>
+          </MotionLink>
           <Logo size="md" className="ml-4" />
         </div>
       </header>

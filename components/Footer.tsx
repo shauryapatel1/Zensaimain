@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -11,10 +11,10 @@ export default function Footer() {
         </p>
 
         <nav className="flex gap-6 flex-wrap justify-center">
-          <Link href="/privacy" className="text-sm text-gray-700 hover:underline">
+          <Link to="/privacy" className="text-sm text-gray-700 hover:underline">
             Privacy&nbsp;Policy
           </Link>
-          <Link href="/terms" className="text-sm text-gray-700 hover:underline">
+          <Link to="/terms" className="text-sm text-gray-700 hover:underline">
             Terms&nbsp;of&nbsp;Service
           </Link>
           <a
