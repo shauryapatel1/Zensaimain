@@ -3,21 +3,28 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut, Calendar, Heart, Sparkles, AlertCircle, CheckCircle, Trophy, Target, BarChart3, BookOpen, Lightbulb, RefreshCw, Save, Volume2, Settings } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useJournal } from '../hooks/useJournal';
+import Logo from './Logo';
 import { usePromptGenerator } from '../hooks/usePromptGenerator';
 import { useMoodAnalyzer } from '../hooks/useMoodAnalyzer';
 import { useAffirmationGenerator } from '../hooks/useAffirmationGenerator';
 import { useMoodQuoteGenerator } from '../hooks/useMoodQuoteGenerator';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
+import { usePremium } from '../hooks/usePremium';
+import UpsellModal from './UpsellModal';
 import LottieAvatar from './LottieAvatar';
 import MoodSelector from './MoodSelector';
 import PhotoUpload from './PhotoUpload';
 import MoodHistoryScreen from './MoodHistoryScreen';
 import SettingsScreen from './SettingsScreen';
 import BadgesScreen from './BadgesScreen';
+import PremiumPage from './PremiumPage';
 import VoiceButton from './VoiceButton';
 import ToastNotification, { ToastType } from './ToastNotification';
 import { MoodLevel } from '../types';
 import { moods } from '../data/moods';
+
+// Define available Lottie animation variants
+const LOTTIE_VARIANTS = ['greeting', 'journaling', 'typing', 'coding', 'music'];
 
 export default function AuthenticatedApp() {
   const { user, logout } = useAuth();
@@ -33,9 +40,10 @@ export default function AuthenticatedApp() {
     error: journalError 
   } = useJournal();
   
-  const [currentView, setCurrentView] = useState<'journal' | 'history' | 'settings' | 'badges'>('journal');
+  const [currentView, setCurrentView] = useState<'journal' | 'history' | 'settings' | 'badges' | 'premium'>('journal');
   const [selectedMood, setSelectedMood] = useState<MoodLevel>();
   const [journalEntry, setJournalEntry] = useState('');
+  const [entryTitle, setEntryTitle] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -55,6 +63,16 @@ export default function AuthenticatedApp() {
   const [showMoodQuote, setShowMoodQuote] = useState(false);
   const [isTextareaFocused, setIsTextareaFocused] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
+  const [randomZenoVariant, setRandomZenoVariant] = useState<string>('greeting');
+
+  // Premium features
+  const { 
+    isPremium, 
+    isUpsellModalOpen, 
+    upsellContent, 
+    showUpsellModal, 
+    hideUpsellModal 
+  } = usePremium();
   
   // Toast notification state
   const [toastVisible, setToastVisible] = useState(false);
@@ -84,6 +102,12 @@ export default function AuthenticatedApp() {
   const alreadyJournaledToday = hasEntryToday();
   const currentMood = selectedMood ? moods.find(m => m.level === selectedMood) : undefined;
 
+  // Set a random Zeno variant on component mount
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * LOTTIE_VARIANTS.length);
+    setRandomZenoVariant(LOTTIE_VARIANTS[randomIndex]);
+  }, []);
+
   // Initialize previous badges on first load
   useEffect(() => {
     if (badges.length > 0 && previousBadges.length === 0) {
@@ -99,15 +123,15 @@ export default function AuthenticatedApp() {
       
       if (newBadges.length > 0) {
         // Show notification for the first new badge
-        const newBadge = badges.find(b => b.id === newBadges[0]);
+        const newBadge = badges.find(b => b.id === newBadges[0] && b.earned);
         if (newBadge) {
           showToast(
-            `Congratulations! You've earned the "${newBadge.name}" badge!`,
+            `Congratulations! You've earned the "${newBadge.badge_name}" badge!`,
             'badge',
             {
-              icon: newBadge.icon,
-              name: newBadge.name,
-              rarity: newBadge.rarity
+              icon: newBadge.badge_icon,
+              name: newBadge.badge_name,
+              rarity: newBadge.badge_rarity
             }
           );
         }
@@ -177,11 +201,8 @@ export default function AuthenticatedApp() {
         previousPrompts: []
       });
       
-      if (newPrompt) {
-        setDailyPrompt(newPrompt);
-      } else {
-        throw new Error('Failed to generate prompt');
-      }
+      // The generatePrompt function now always returns a prompt (fallback if needed)
+      setDailyPrompt(newPrompt || getDailyPrompt());
     } catch (err) {
       console.error('Failed to generate new prompt:', err);
       setPromptError('Failed to load today\'s prompt');
@@ -201,11 +222,8 @@ export default function AuthenticatedApp() {
         previousPrompts: dailyPrompt ? [dailyPrompt] : []
       });
       
-      if (newPrompt) {
-        setDailyPrompt(newPrompt);
-      } else {
-        throw new Error('Failed to generate new prompt');
-      }
+      // The generatePrompt function now always returns a prompt (fallback if needed)
+      setDailyPrompt(newPrompt || getDailyPrompt());
     } catch (err) {
       console.error('Failed to generate new prompt:', err);
       setPromptError('Failed to generate new prompt');
@@ -249,7 +267,12 @@ export default function AuthenticatedApp() {
       setZenoVariant('typing'); // Show typing animation while saving
       
       // Save to database
-      const result = await addEntry(journalEntry.trim(), finalMood, selectedPhoto || undefined);
+      const result = await addEntry(
+        journalEntry.trim(), 
+        entryTitle, 
+        finalMood, 
+        selectedPhoto || undefined
+      );
       
       if (!result.success) {
         throw new Error(result.error || 'Failed to save your entry');
@@ -305,6 +328,7 @@ export default function AuthenticatedApp() {
       setSuccessMessage(message);
 
       setJournalEntry('');
+      setEntryTitle('');
       setSelectedMood(undefined);
       setSelectedPhoto(null);
       setAiDetectedMood(null);
@@ -530,6 +554,11 @@ export default function AuthenticatedApp() {
   if (currentView === 'badges') {
     return <BadgesScreen onBack={() => setCurrentView('journal')} />;
   }
+  
+  // Show premium view
+  if (currentView === 'premium') {
+    return <PremiumPage onBack={() => setCurrentView('journal')} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zen-mint-50 via-zen-cream-50 to-zen-lavender-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -580,7 +609,8 @@ export default function AuthenticatedApp() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div>
+        <div className="flex items-center space-x-3">
+          <Logo size="md" />
           <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200">Zensai</h1>
           <p className="text-xs text-zen-sage-600 dark:text-gray-400">with Zeno</p>
         </div>
@@ -604,6 +634,13 @@ export default function AuthenticatedApp() {
                 {badges.filter(b => b.earned).length}
               </span>
             )}
+          </button>
+          <button
+            onClick={() => setCurrentView('premium')}
+            className="flex items-center space-x-2 px-3 py-2 text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-700/50 rounded-full transition-all duration-300"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span className="text-sm font-medium hidden sm:inline">Premium</span>
           </button>
           <button
             onClick={() => setCurrentView('settings')}
@@ -636,34 +673,14 @@ export default function AuthenticatedApp() {
         {showSuccess && (
           <motion.div
             className="fixed top-4 right-4 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white px-6 py-4 rounded-2xl shadow-xl z-50 border border-zen-mint-300"
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, x: 100, scale: 0.8 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 100, scale: 0.8 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="w-5 h-5" />
+            <div className="flex items-center space-x-3">
+              <CheckCircle className="w-6 h-6 text-white" />
               <span className="font-medium">{successMessage}</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Mood Confirmation Message */}
-      <AnimatePresence>
-        {showMoodConfirmation && moodConfirmed && (
-          <motion.div
-            className="fixed top-4 left-4 bg-gradient-to-r from-zen-peach-400 to-zen-peach-500 text-white px-6 py-4 rounded-2xl shadow-xl z-50 border border-zen-peach-300"
-            initial={{ opacity: 0, x: -100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="flex items-center space-x-2">
-              <Heart className="w-5 h-5" />
-              <span className="font-medium">
-                Mood saved! Zeno understands how you're feeling 🦊
-              </span>
             </div>
           </motion.div>
         )}
@@ -671,20 +688,34 @@ export default function AuthenticatedApp() {
 
       {/* Main Content */}
       <main className="relative z-10 max-w-4xl mx-auto px-4 pb-8">
-        {/* Greeting Section */}
+        {/* Welcome Section */}
         <motion.div
           className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <h2 className="text-2xl font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-2">
+          <h2 className="text-3xl font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-2">
             {getGreeting()}
           </h2>
-          <p className="text-zen-sage-600 dark:text-gray-400 mb-4">
-            {getCurrentDate()}
-          </p>
+          <p className="text-zen-sage-600 dark:text-gray-400 mb-4">{getCurrentDate()}</p>
           
+          {/* Stats */}
+          <div className="flex justify-center space-x-6 mb-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-zen-mint-600 dark:text-zen-mint-400">{streak}</div>
+              <div className="text-sm text-zen-sage-600 dark:text-gray-400">Current Streak</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-zen-peach-600 dark:text-zen-peach-400">{bestStreak}</div>
+              <div className="text-sm text-zen-sage-600 dark:text-gray-400">Best Streak</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-zen-lavender-600 dark:text-zen-lavender-400">{totalEntries}</div>
+              <div className="text-sm text-zen-sage-600 dark:text-gray-400">Total Entries</div>
+            </div>
+          </div>
+
           {/* Contextual Message */}
           {getContextualMessage() && (
             <motion.div
@@ -698,48 +729,6 @@ export default function AuthenticatedApp() {
               </p>
             </motion.div>
           )}
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            <motion.div
-              className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-4 border border-zen-mint-200 dark:border-gray-700"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.6 }}
-            >
-              <div className="flex items-center justify-center mb-2">
-                <Target className="w-6 h-6 text-zen-mint-500" />
-              </div>
-              <p className="text-2xl font-bold text-zen-sage-800 dark:text-gray-200">{streak}</p>
-              <p className="text-xs text-zen-sage-600 dark:text-gray-400">Current Streak</p>
-            </motion.div>
-
-            <motion.div
-              className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-4 border border-zen-mint-200 dark:border-gray-700"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.7 }}
-            >
-              <div className="flex items-center justify-center mb-2">
-                <Trophy className="w-6 h-6 text-zen-peach-500" />
-              </div>
-              <p className="text-2xl font-bold text-zen-sage-800 dark:text-gray-200">{bestStreak}</p>
-              <p className="text-xs text-zen-sage-600 dark:text-gray-400">Best Streak</p>
-            </motion.div>
-
-            <motion.div
-              className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-4 border border-zen-mint-200 dark:border-gray-700"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.8 }}
-            >
-              <div className="flex items-center justify-center mb-2">
-                <BookOpen className="w-6 h-6 text-zen-lavender-500" />
-              </div>
-              <p className="text-2xl font-bold text-zen-sage-800 dark:text-gray-200">{totalEntries}</p>
-              <p className="text-xs text-zen-sage-600 dark:text-gray-400">Total Entries</p>
-            </motion.div>
-          </div>
         </motion.div>
 
         {/* Zeno Avatar */}
@@ -747,93 +736,109 @@ export default function AuthenticatedApp() {
           className="flex justify-center mb-8"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
         >
           <div className="relative">
-            <LottieAvatar variant={zenoVariant} />
-            {(isSubmitting || isGeneratingAffirmation || isGeneratingSpeech) && (
+            <LottieAvatar 
+              variant={isSubmitting || isGeneratingAffirmation || isGeneratingSpeech || journalEntry.length > 0 || selectedMood 
+                ? zenoVariant 
+                : randomZenoVariant} 
+              size="lg" 
+            />
+            {/* Speech bubble for contextual messages */}
+            {(showMoodConfirmation || showAffirmation || showMoodQuote) && (
               <motion.div
-                className="absolute -bottom-2 left-1/2 transform -translate-x-1/2"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
+                className="absolute -top-16 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-xl border border-zen-mint-200 dark:border-gray-700 max-w-xs"
+                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
               >
-                <div className="bg-zen-mint-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {isSubmitting ? 'Saving...' : isGeneratingAffirmation ? 'Thinking...' : 'Speaking...'}
-                </div>
+                {showMoodConfirmation && (
+                  <p className="text-sm text-zen-sage-700 dark:text-gray-300">
+                    Perfect! I can sense that energy. ✨
+                  </p>
+                )}
+                {showAffirmation && affirmation && (
+                  <div>
+                    <p className="text-sm text-zen-sage-700 dark:text-gray-300 mb-2">
+                      {affirmation}
+                    </p>
+                    {affirmationError && (
+                      <p className="text-xs text-zen-peach-600 dark:text-zen-peach-400">
+                        {affirmationError}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {showMoodQuote && moodQuote && (
+                  <div>
+                    <p className="text-sm text-zen-sage-700 dark:text-gray-300 italic">
+                      "{moodQuote.quote}"
+                    </p>
+                    {moodQuote.attribution && (
+                      <p className="text-xs text-zen-sage-500 dark:text-gray-400 mt-1">
+                        — {moodQuote.attribution}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {/* Speech bubble tail */}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white dark:border-t-gray-800"></div>
               </motion.div>
             )}
           </div>
         </motion.div>
 
-        {/* Daily Prompt */}
-        <motion.div
-          className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-zen-mint-200 dark:border-gray-700"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <Lightbulb className="w-5 h-5 text-zen-peach-500" />
-              <h3 className="font-display font-semibold text-zen-sage-800 dark:text-gray-200">
-                Today's Reflection
-              </h3>
-            </div>
-            <button
-              onClick={handleGenerateNewPrompt}
-              disabled={isLoadingPrompt}
-              className="flex items-center space-x-1 px-3 py-1 text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-700/50 rounded-full transition-all duration-300 disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 ${isLoadingPrompt ? 'animate-spin' : ''}`} />
-              <span className="text-sm">New</span>
-            </button>
-          </div>
-          <p className="text-zen-sage-700 dark:text-gray-300 leading-relaxed">
-            {getDailyPrompt()}
-          </p>
-        </motion.div>
-
-        {/* Mood Quote Display */}
-        <AnimatePresence>
-          {showMoodQuote && moodQuote && (
-            <motion.div
-              className="bg-gradient-to-r from-zen-lavender-100 to-zen-peach-100 dark:from-gray-700 dark:to-gray-600 rounded-2xl p-6 mb-6 border border-zen-lavender-200 dark:border-gray-600"
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ duration: 0.4 }}
-            >
-              <div className="flex items-start space-x-3">
-                <Sparkles className="w-6 h-6 text-zen-lavender-500 flex-shrink-0 mt-1" />
-                <div>
-                  <blockquote className="text-zen-sage-800 dark:text-gray-200 font-medium italic text-lg leading-relaxed mb-2">
-                    "{moodQuote.quote}"
-                  </blockquote>
-                  {moodQuote.attribution && (
-                    <cite className="text-zen-sage-600 dark:text-gray-400 text-sm">
-                      — {moodQuote.attribution}
-                    </cite>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Journal Entry Form */}
         <motion.div
-          className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-6 border border-zen-mint-200 dark:border-gray-700"
-          initial={{ opacity: 0, y: 20 }}
+          className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-zen-mint-200 dark:border-gray-700"
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
         >
-          {/* Mood Selector */}
+          {/* Daily Prompt */}
           <div className="mb-6">
-            <h3 className="font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center">
-              <Heart className="w-5 h-5 text-zen-peach-500 mr-2" />
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-display font-semibold text-zen-sage-800 dark:text-gray-200 flex items-center">
+                <Lightbulb className="w-5 h-5 mr-2 text-zen-mint-600" />
+                Today's Reflection
+              </h3>
+              <button
+                onClick={handleGenerateNewPrompt}
+                disabled={isLoadingPrompt}
+                className="flex items-center space-x-1 px-3 py-1 text-sm text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 hover:bg-zen-mint-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${isLoadingPrompt ? 'animate-spin' : ''}`} />
+                <span>New Prompt</span>
+              </button>
+            </div>
+            <div className="bg-zen-mint-50 dark:bg-gray-700 rounded-2xl p-4 border border-zen-mint-200 dark:border-gray-600">
+              <p className="text-zen-sage-700 dark:text-gray-300 font-medium">
+                {getDailyPrompt()}
+              </p>
+            </div>
+          </div>
+
+          {/* Entry Title */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
+              Entry Title (Optional)
+            </label>
+            <input
+              type="text"
+              value={entryTitle}
+              onChange={(e) => setEntryTitle(e.target.value)}
+              placeholder="Give your entry a title..."
+              className="w-full px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-zen-mint-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent transition-all duration-300 text-zen-sage-800 dark:text-gray-200 placeholder-zen-sage-400 dark:placeholder-gray-500"
+            />
+          </div>
+
+          {/* Mood Selection */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-3">
               How are you feeling?
-            </h3>
+            </label>
             <MoodSelector
               selectedMood={selectedMood}
               onMoodSelect={handleMoodSelect}
@@ -845,36 +850,40 @@ export default function AuthenticatedApp() {
           <AnimatePresence>
             {showMoodSuggestion && aiDetectedMood && (
               <motion.div
-                className="bg-zen-mint-50 dark:bg-gray-700 border border-zen-mint-200 dark:border-gray-600 rounded-xl p-4 mb-6"
+                className="mb-6 bg-zen-lavender-50 dark:bg-gray-700 border border-zen-lavender-200 dark:border-gray-600 rounded-2xl p-4"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="flex items-start space-x-3">
-                  <Sparkles className="w-5 h-5 text-zen-mint-500 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-zen-sage-700 dark:text-gray-300 text-sm mb-3">
-                      Based on your writing, I sense you might be feeling{' '}
-                      <span className="font-semibold">
-                        {moods.find(m => m.level === aiDetectedMood)?.label.toLowerCase()}
-                      </span>
-                      . Would you like me to update your mood?
-                    </p>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={handleAcceptAiMood}
-                        className="px-3 py-1 bg-zen-mint-500 text-white text-sm rounded-lg hover:bg-zen-mint-600 transition-colors"
-                      >
-                        Yes, that's right
-                      </button>
-                      <button
-                        onClick={handleDismissMoodSuggestion}
-                        className="px-3 py-1 bg-gray-200 dark:bg-gray-600 text-zen-sage-700 dark:text-gray-300 text-sm rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
-                      >
-                        No, keep my choice
-                      </button>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Sparkles className="w-5 h-5 text-zen-lavender-600" />
+                    <div>
+                      <p className="text-sm font-medium text-zen-sage-800 dark:text-gray-200">
+                        Based on your writing, I sense you might be feeling{' '}
+                        <span className="font-semibold">
+                          {moods.find(m => m.level === aiDetectedMood)?.label}
+                        </span>
+                      </p>
+                      <p className="text-xs text-zen-sage-600 dark:text-gray-400">
+                        Would you like me to update your mood selection?
+                      </p>
                     </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={handleAcceptAiMood}
+                      className="px-3 py-1 bg-zen-lavender-500 text-white text-sm rounded-lg hover:bg-zen-lavender-600 transition-colors duration-200"
+                    >
+                      Yes
+                    </button>
+                    <button
+                      onClick={handleDismissMoodSuggestion}
+                      className="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-zen-sage-700 dark:text-gray-300 text-sm rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200"
+                    >
+                      No
+                    </button>
                   </div>
                 </div>
               </motion.div>
@@ -890,133 +899,121 @@ export default function AuthenticatedApp() {
             />
           </div>
 
-          {/* Journal Textarea */}
+          {/* Journal Entry Textarea */}
           <div className="mb-6">
+            <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
+              Your thoughts
+            </label>
             <div className="relative">
               <textarea
                 value={journalEntry}
                 onChange={(e) => setJournalEntry(e.target.value)}
                 onFocus={() => setIsTextareaFocused(true)}
                 onBlur={() => setIsTextareaFocused(false)}
-                placeholder="Share your thoughts, feelings, or experiences..."
-                className="w-full h-40 p-4 bg-white/80 dark:bg-gray-700/80 border border-zen-mint-200 dark:border-gray-600 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent transition-all duration-300 text-zen-sage-800 dark:text-gray-200 placeholder-zen-sage-400 dark:placeholder-gray-500"
+                placeholder="Share what's on your mind... Zeno is here to listen."
+                rows={8}
+                className="w-full px-4 py-4 bg-white/50 dark:bg-gray-700/50 border border-zen-mint-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent transition-all duration-300 text-zen-sage-800 dark:text-gray-200 placeholder-zen-sage-400 dark:placeholder-gray-500 resize-none"
                 disabled={isSubmitting}
               />
-              {journalEntry.length > 0 && (
-                <div className="absolute bottom-2 right-2 text-xs text-zen-sage-400 dark:text-gray-500">
-                  {journalEntry.length} characters
-                </div>
-              )}
+              {/* Character count */}
+              <div className="absolute bottom-3 right-3 text-xs text-zen-sage-400 dark:text-gray-500">
+                {journalEntry.length} characters
+              </div>
             </div>
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <motion.div
-              className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <div className="flex items-center space-x-2">
-                <AlertCircle className="w-5 h-5 text-red-500" />
-                <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+          {/* Voice Features */}
+          {affirmation && (
+            <div className="mb-6 flex items-center justify-between bg-zen-peach-50 dark:bg-gray-700 rounded-2xl p-4 border border-zen-peach-200 dark:border-gray-600">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-zen-sage-800 dark:text-gray-200 mb-1">
+                  Your Personal Affirmation
+                </p>
+                <p className="text-zen-sage-700 dark:text-gray-300 text-sm">
+                  {affirmation}
+                </p>
               </div>
-            </motion.div>
+              <VoiceButton
+                text={affirmation}
+                onPlay={() => generateAndPlaySpeech(affirmation)}
+                onStop={stopSpeech}
+                isGenerating={isGeneratingSpeech}
+                isPlaying={isSpeechPlaying}
+                error={speechError}
+                onClearError={clearSpeechError}
+              />
+            </div>
           )}
 
-          {/* Submit Button */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {affirmation && (
-                <VoiceButton
-                  text={affirmation}
-                  onPlay={() => generateAndPlaySpeech(affirmation)}
-                  onStop={stopSpeech}
-                  isGenerating={isGeneratingSpeech}
-                  isPlaying={isSpeechPlaying}
-                  disabled={isSubmitting}
-                />
-              )}
-              {speechError && (
-                <div className="flex items-center space-x-2 text-red-500">
-                  <AlertCircle className="w-4 h-4" />
-                  <span className="text-sm">Voice unavailable</span>
-                  <button
-                    onClick={clearSpeechError}
-                    className="text-xs underline hover:no-underline"
-                  >
-                    Dismiss
-                  </button>
+          {/* Error Message */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex items-center space-x-2">
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                  <p className="text-red-700 dark:text-red-300 text-sm font-medium">{error}</p>
                 </div>
-              )}
-            </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-            <button
+          {/* Submit Button */}
+          <div className="flex justify-center">
+            <motion.button
               onClick={handleSubmit}
               disabled={!journalEntry.trim() || !selectedMood || isSubmitting}
-              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white font-medium rounded-xl hover:from-zen-mint-500 hover:to-zen-mint-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl"
+              className="flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white font-semibold rounded-2xl hover:from-zen-mint-500 hover:to-zen-mint-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Saving...</span>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Saving your thoughts...</span>
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4" />
+                  <Save className="w-5 h-5" />
                   <span>Save Entry</span>
                 </>
               )}
-            </button>
+            </motion.button>
           </div>
 
-          {/* Already Journaled Today Message */}
-          {alreadyJournaledToday && (
+          {/* Already journaled today message */}
+          {alreadyJournaledToday && !isSubmitting && (
             <motion.div
-              className="mt-4 bg-zen-peach-50 dark:bg-zen-peach-900/20 border border-zen-peach-200 dark:border-zen-peach-800 rounded-xl p-4"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
             >
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="w-5 h-5 text-zen-peach-500" />
-                <p className="text-zen-peach-700 dark:text-zen-peach-300 text-sm">
-                  You've already journaled today! Feel free to add another entry to continue your reflection.
-                </p>
+              <div className="inline-flex items-center space-x-2 bg-zen-mint-50 dark:bg-gray-700 px-4 py-2 rounded-full border border-zen-mint-200 dark:border-gray-600">
+                <CheckCircle className="w-4 h-4 text-zen-mint-600" />
+                <span className="text-sm text-zen-sage-700 dark:text-gray-300 font-medium">
+                  You've already journaled today! Feel free to add another entry.
+                </span>
               </div>
             </motion.div>
           )}
         </motion.div>
-
-        {/* Affirmation Display */}
-        <AnimatePresence>
-          {showAffirmation && affirmation && (
-            <motion.div
-              className="mt-6 bg-gradient-to-r from-zen-mint-100 to-zen-lavender-100 dark:from-gray-700 dark:to-gray-600 rounded-2xl p-6 border border-zen-mint-200 dark:border-gray-600"
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ duration: 0.4 }}
-            >
-              <div className="flex items-start space-x-3">
-                <Sparkles className="w-6 h-6 text-zen-mint-500 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-2">
-                    A message from Zeno
-                  </h4>
-                  <p className="text-zen-sage-700 dark:text-gray-300 leading-relaxed">
-                    {affirmation}
-                  </p>
-                  {affirmationError && (
-                    <p className="text-zen-sage-500 dark:text-gray-400 text-sm mt-2 italic">
-                      {affirmationError}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </main>
+
+      {/* Upsell Modal */}
+      <UpsellModal
+        isOpen={isUpsellModalOpen}
+        onClose={hideUpsellModal}
+        title={upsellContent?.title || ''}
+        description={upsellContent?.description || ''}
+        features={upsellContent?.features || []}
+        ctaText={upsellContent?.ctaText || ''}
+      />
     </div>
   );
 }

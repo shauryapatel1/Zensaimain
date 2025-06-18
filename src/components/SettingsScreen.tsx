@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, 
   User, 
-  Settings as SettingsIcon, 
+  Settings as SettingsIcon,
+  Crown,
   LogOut, 
   Trash2, 
   Save, 
@@ -17,11 +18,17 @@ import {
   Heart,
   Sparkles,
   Download,
-  Trophy
+  Trophy,
+  ChevronDown
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabase';
+import { usePremium } from '../hooks/usePremium';
+import UpsellModal from './UpsellModal';
+import { fonts } from '../data/fonts';
+import Logo from './Logo';
+import { useNavigate } from 'react-router-dom';
 import LottieAvatar from './LottieAvatar';
 
 interface SettingsScreenProps {
@@ -40,6 +47,8 @@ interface UserProfile {
 
 export default function SettingsScreen({ onBack }: SettingsScreenProps) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const { isPremium, isUpsellModalOpen, upsellContent, showUpsellModal, hideUpsellModal } = usePremium();
   const { isDarkMode, setDarkMode } = useTheme();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,6 +62,9 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
   const [originalName, setOriginalName] = useState('');
   const [journalingGoal, setJournalingGoal] = useState(3);
   const [originalGoal, setOriginalGoal] = useState(3);
+  
+  // Font customization
+  const [selectedFont, setSelectedFont] = useState('');
   
   // Preferences state
   const [notifications, setNotifications] = useState(true);
@@ -94,6 +106,7 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
       setOriginalName(profileData.name || user.name || '');
       setJournalingGoal(profileData.journaling_goal_frequency || 3);
       setOriginalGoal(profileData.journaling_goal_frequency || 3);
+      setSelectedFont(profileData.selected_font || 'Inter');
     } catch (err) {
       console.error('Error loading profile:', err);
       setError('An unexpected error occurred');
@@ -339,16 +352,12 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
             
             {/* Logo with Zeno */}
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
-                <LottieAvatar mood={4} size="sm" variant="greeting" animate={false} />
-              </div>
-              <div>
-                <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200 flex items-center">
-                  <SettingsIcon className="w-5 h-5 mr-2 text-zen-mint-500" />
-                  Settings
-                </h1>
-                <p className="text-xs text-zen-sage-600 dark:text-gray-400">Manage your account and preferences</p>
-              </div>
+              <Logo size="sm" className="mr-1" />
+              <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200 flex items-center">
+                <SettingsIcon className="w-5 h-5 mr-2 text-zen-mint-500" />
+                Settings
+              </h1>
+              <p className="text-xs text-zen-sage-600 dark:text-gray-400">Manage your account and preferences</p>
             </div>
           </div>
         </div>
@@ -615,60 +624,112 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
               </div>
             </div>
 
-            {/* Data Management */}
+            {/* Subscription Section */}
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-600/20">
               <h3 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center">
-                <Download className="w-5 h-5 mr-2 text-zen-mint-500" />
-                Data Management
+                <Crown className="w-5 h-5 mr-2 text-yellow-500" />
+                Subscription
               </h3>
               
               <div className="space-y-4">
-                <div className="p-4 bg-zen-sage-50 dark:bg-gray-700 rounded-2xl">
-                  <h4 className="font-medium text-zen-sage-800 dark:text-gray-200 mb-2">Export Journal Data</h4>
-                  <p className="text-sm text-zen-sage-600 dark:text-gray-400 mb-4">
-                    Download all your journal entries and data in JSON format for backup or personal use.
-                  </p>
+                <div className="p-4 bg-gradient-to-r from-zen-mint-50 to-zen-lavender-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-zen-sage-800 dark:text-gray-200">Current Plan</h4>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      profile?.subscription_status === 'premium'
+                        ? 'bg-zen-mint-100 text-zen-mint-700 dark:bg-zen-mint-900/30 dark:text-zen-mint-400'
+                        : 'bg-zen-sage-100 text-zen-sage-700 dark:bg-gray-600 dark:text-gray-300'
+                    }`}>
+                      {profile?.subscription_status === 'premium' 
+                        ? profile?.subscription_tier === 'premium_plus' 
+                          ? 'Premium Yearly' 
+                          : 'Premium Monthly'
+                        : 'Free'}
+                    </span>
+                  </div>
+                  
+                  {profile?.subscription_status === 'premium' && profile?.subscription_expires_at && (
+                    <p className="text-sm text-zen-sage-600 dark:text-gray-400 mb-4">
+                      Your subscription renews on {new Date(profile.subscription_expires_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  )}
+                  
+                  {profile?.subscription_status === 'cancelled' && profile?.subscription_expires_at && (
+                    <p className="text-sm text-zen-peach-600 dark:text-zen-peach-400 mb-4">
+                      Your subscription is cancelled and will end on {new Date(profile.subscription_expires_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  )}
+                  
                   <button
-                    onClick={handleExportData}
-                    disabled={isExporting}
-                    className="flex items-center space-x-2 px-4 py-2 bg-zen-mint-400 text-white rounded-xl hover:bg-zen-mint-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    onClick={() => navigate('/premium')}
+                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white rounded-xl hover:from-zen-mint-500 hover:to-zen-mint-600 transition-colors shadow-md"
                   >
-                    {isExporting ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Exporting...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Download className="w-4 h-4" />
-                        <span>Export Data</span>
-                      </>
-                    )}
+                    <Crown className="w-4 h-4" />
+                    <span>{profile?.subscription_status === 'premium' ? 'Manage Subscription' : 'Upgrade to Premium'}</span>
                   </button>
                 </div>
               </div>
             </div>
-            {/* Account Actions */}
+
+            {/* Data & Privacy Section */}
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-600/20">
               <h3 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center">
                 <Shield className="w-5 h-5 mr-2 text-zen-mint-500" />
+                Data & Privacy
+              </h3>
+              
+              <div className="space-y-4">
+                <button
+                  onClick={handleExportData}
+                  disabled={isExporting}
+                  className="flex items-center space-x-2 px-4 py-3 bg-zen-sage-100 dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200 rounded-2xl hover:bg-zen-sage-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-full"
+                >
+                  {isExporting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-zen-sage-600 border-t-transparent rounded-full animate-spin" />
+                      <span>Exporting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4" />
+                      <span>Export Journal Data</span>
+                    </>
+                  )}
+                </button>
+                
+                <p className="text-xs text-zen-sage-500 dark:text-gray-400">
+                  Download all your journal entries and data in JSON format.
+                </p>
+              </div>
+            </div>
+
+            {/* Account Actions */}
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-600/20">
+              <h3 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center">
+                <AlertTriangle className="w-5 h-5 mr-2 text-zen-peach-500" />
                 Account Actions
               </h3>
               
               <div className="space-y-4">
-                {/* Sign Out Button */}
                 <button
                   onClick={() => setShowLogoutConfirm(true)}
-                  className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-zen-sage-200 dark:bg-gray-600 text-zen-sage-800 dark:text-gray-200 rounded-2xl hover:bg-zen-sage-300 dark:hover:bg-gray-500 transition-all duration-300 font-medium"
+                  className="flex items-center space-x-2 px-4 py-3 bg-zen-sage-100 dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200 rounded-2xl hover:bg-zen-sage-200 dark:hover:bg-gray-600 transition-colors w-full"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Sign Out</span>
                 </button>
-
-                {/* Delete Account Button */}
+                
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-red-100 text-red-700 rounded-2xl hover:bg-red-200 transition-all duration-300 font-medium"
+                  className="flex items-center space-x-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-2xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors w-full"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>Delete Account</span>
@@ -683,39 +744,33 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
       <AnimatePresence>
         {showLogoutConfirm && (
           <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w-full"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-white/20 dark:border-gray-600/20"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
             >
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-zen-sage-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <LogOut className="w-8 h-8 text-zen-sage-600 dark:text-gray-300" />
-                </div>
-                <h3 className="text-xl font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-2">
-                  Sign Out
-                </h3>
-                <p className="text-zen-sage-600 dark:text-gray-400">
-                  Are you sure you want to sign out? You can always sign back in anytime.
-                </p>
-              </div>
-              
+              <h3 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-4">
+                Sign Out
+              </h3>
+              <p className="text-zen-sage-600 dark:text-gray-400 mb-6">
+                Are you sure you want to sign out? You'll need to sign in again to access your journal.
+              </p>
               <div className="flex space-x-3">
                 <button
                   onClick={() => setShowLogoutConfirm(false)}
-                  className="flex-1 px-4 py-3 text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 transition-colors font-medium"
+                  className="flex-1 px-4 py-3 bg-zen-sage-100 dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200 rounded-2xl hover:bg-zen-sage-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="flex-1 px-4 py-3 bg-zen-sage-600 text-white rounded-xl hover:bg-zen-sage-700 transition-colors font-medium"
+                  className="flex-1 px-4 py-3 bg-zen-peach-400 text-white rounded-2xl hover:bg-zen-peach-500 transition-colors"
                 >
                   Sign Out
                 </button>
@@ -729,56 +784,48 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
       <AnimatePresence>
         {showDeleteConfirm && (
           <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w-full"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-white/20 dark:border-gray-600/20"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
             >
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <AlertTriangle className="w-8 h-8 text-red-600" />
-                </div>
-                <h3 className="text-xl font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-2">
-                  Delete Account
-                </h3>
-                <p className="text-zen-sage-600 dark:text-gray-400 mb-4">
-                  This action cannot be undone. All your journal entries, progress, and data will be permanently deleted.
-                </p>
-                
-                <div className="text-left">
-                  <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
-                    Type "DELETE" to confirm:
-                  </label>
-                  <input
-                    type="text"
-                    value={deleteConfirmText}
-                    onChange={(e) => setDeleteConfirmText(e.target.value)}
-                    className="w-full px-3 py-2 border border-red-300 dark:border-red-500 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent bg-white dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200"
-                    placeholder="DELETE"
-                  />
-                </div>
-              </div>
-              
+              <h3 className="text-lg font-display font-bold text-red-600 dark:text-red-400 mb-4 flex items-center">
+                <AlertTriangle className="w-5 h-5 mr-2" />
+                Delete Account
+              </h3>
+              <p className="text-zen-sage-600 dark:text-gray-400 mb-4">
+                This action cannot be undone. All your journal entries, progress, and data will be permanently deleted.
+              </p>
+              <p className="text-zen-sage-600 dark:text-gray-400 mb-6">
+                Type <strong>DELETE</strong> to confirm:
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                className="w-full px-4 py-3 border border-zen-sage-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-red-400 focus:border-transparent bg-white/70 dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200 mb-6"
+                placeholder="Type DELETE to confirm"
+              />
               <div className="flex space-x-3">
                 <button
                   onClick={() => {
                     setShowDeleteConfirm(false);
                     setDeleteConfirmText('');
                   }}
-                  className="flex-1 px-4 py-3 text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 transition-colors font-medium"
+                  className="flex-1 px-4 py-3 bg-zen-sage-100 dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200 rounded-2xl hover:bg-zen-sage-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDeleteAccount}
                   disabled={deleteConfirmText !== 'DELETE'}
-                  className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                  className="flex-1 px-4 py-3 bg-red-500 text-white rounded-2xl hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Delete Account
                 </button>
@@ -787,6 +834,13 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Upsell Modal */}
+      <UpsellModal
+        isOpen={isUpsellModalOpen}
+        onClose={hideUpsellModal}
+        content={upsellContent}
+      />
     </div>
   );
 }

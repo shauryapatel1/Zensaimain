@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Trophy, Star, Filter, Search, Award, Target, Calendar, Sparkles } from 'lucide-react';
 import { useJournal } from '../hooks/useJournal';
+import Logo from './Logo';
 import LottieAvatar from './LottieAvatar';
 
 interface BadgesScreenProps {
@@ -10,11 +11,11 @@ interface BadgesScreenProps {
 
 interface Badge {
   id: string;
-  name: string;
-  description: string;
-  icon: string;
-  category: string;
-  rarity: string;
+  badge_name: string;
+  badge_description: string;
+  badge_icon: string;
+  badge_category: string;
+  badge_rarity: string;
   earned: boolean;
   earned_at: string | null;
   progress_current: number;
@@ -32,11 +33,11 @@ export default function BadgesScreen({ onBack }: BadgesScreenProps) {
   // Filter badges based on selected filters
   const filteredBadges = useMemo(() => {
     return badges.filter(badge => {
-      const matchesCategory = selectedCategory === 'all' || badge.category === selectedCategory;
-      const matchesRarity = selectedRarity === 'all' || badge.rarity === selectedRarity;
+      const matchesCategory = selectedCategory === 'all' || badge.badge_category === selectedCategory;
+      const matchesRarity = selectedRarity === 'all' || badge.badge_rarity === selectedRarity;
       const matchesSearch = searchTerm === '' || 
-        badge.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        badge.description.toLowerCase().includes(searchTerm.toLowerCase());
+        badge.badge_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        badge.badge_description.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesEarned = !showOnlyEarned || badge.earned;
       
       return matchesCategory && matchesRarity && matchesSearch && matchesEarned;
@@ -47,10 +48,10 @@ export default function BadgesScreen({ onBack }: BadgesScreenProps) {
   const groupedBadges = useMemo(() => {
     const groups: Record<string, Badge[]> = {};
     filteredBadges.forEach(badge => {
-      if (!groups[badge.category]) {
-        groups[badge.category] = [];
+      if (!groups[badge.badge_category]) {
+        groups[badge.badge_category] = [];
       }
-      groups[badge.category].push(badge);
+      groups[badge.badge_category].push(badge);
     });
     return groups;
   }, [filteredBadges]);
@@ -138,18 +139,14 @@ export default function BadgesScreen({ onBack }: BadgesScreenProps) {
             </button>
             
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
-                <LottieAvatar mood={4} size="sm" variant="greeting" animate={false} />
-              </div>
-              <div>
-                <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200 flex items-center">
-                  <Trophy className="w-5 h-5 mr-2 text-zen-peach-500" />
-                  Badge Collection
-                </h1>
-                <p className="text-xs text-zen-sage-600 dark:text-gray-400">
-                  {stats.earned} of {stats.total} badges earned
-                </p>
-              </div>
+              <Logo size="sm" className="mr-1" />
+              <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200 flex items-center">
+                <Trophy className="w-5 h-5 mr-2 text-zen-peach-500" />
+                Badge Collection
+              </h1>
+              <p className="text-xs text-zen-sage-600 dark:text-gray-400">
+                {stats.earned} of {stats.total} badges earned
+              </p>
             </div>
           </div>
         </div>
@@ -315,7 +312,7 @@ export default function BadgesScreen({ onBack }: BadgesScreenProps) {
                         className={`
                           relative p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105
                           ${badge.earned 
-                            ? `bg-gradient-to-br ${getRarityColor(badge.rarity)} shadow-lg` 
+                            ? `bg-gradient-to-br ${getRarityColor(badge.badge_rarity)} shadow-lg` 
                             : 'bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 opacity-60'
                           }
                         `}
@@ -326,12 +323,12 @@ export default function BadgesScreen({ onBack }: BadgesScreenProps) {
                       >
                         {/* Badge Icon */}
                         <div className="text-center mb-4">
-                          <div className="text-4xl mb-2">{badge.icon}</div>
+                          <div className="text-4xl mb-2">{badge.badge_icon}</div>
                           <h4 className="font-display font-bold text-lg mb-1">
-                            {badge.name}
+                            {badge.badge_name}
                           </h4>
                           <p className="text-sm opacity-80 leading-relaxed">
-                            {badge.description}
+                            {badge.badge_description}
                           </p>
                         </div>
 
@@ -362,13 +359,13 @@ export default function BadgesScreen({ onBack }: BadgesScreenProps) {
                         <div className="absolute top-2 right-2">
                           <span className={`
                             px-2 py-1 text-xs font-bold rounded-full capitalize
-                            ${badge.rarity === 'legendary' ? 'bg-yellow-200 text-yellow-800' :
-                              badge.rarity === 'epic' ? 'bg-purple-200 text-purple-800' :
-                              badge.rarity === 'rare' ? 'bg-blue-200 text-blue-800' :
+                            ${badge.badge_rarity === 'legendary' ? 'bg-yellow-200 text-yellow-800' :
+                              badge.badge_rarity === 'epic' ? 'bg-purple-200 text-purple-800' :
+                              badge.badge_rarity === 'rare' ? 'bg-blue-200 text-blue-800' :
                               'bg-gray-200 text-gray-800'
                             }
                           `}>
-                            {badge.rarity}
+                            {badge.badge_rarity}
                           </span>
                         </div>
 

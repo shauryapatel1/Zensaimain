@@ -40,6 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Handle "Auth session missing!" as a normal unauthenticated state
           if (error.message === 'Auth session missing!') {
             console.warn('No active session found - user is not authenticated');
+          } else if (error.message.includes('Invalid Refresh Token')) {
+            console.warn('Invalid refresh token found - clearing session');
+            // Clear the invalid session from local storage
+            await supabase.auth.signOut();
           } else {
             console.error('Error getting initial session:', error);
           }

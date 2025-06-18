@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { usePremium } from './usePremium';
 
 interface VoiceSettings {
   stability?: number;
@@ -16,6 +17,7 @@ interface SpeechResponse {
 }
 
 export function useVoiceSynthesis() {
+  const { isPremium, trackFeatureUsage } = usePremium();
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +29,12 @@ export function useVoiceSynthesis() {
   ): Promise<boolean> => {
     if (!text.trim()) {
       setError('Text is required for speech generation');
+      return false;
+    }
+    
+    // Check if free user has reached daily limit
+    if (!isPremium && !trackFeatureUsage('voice-synthesis')) {
+      setError('Voice synthesis is a premium feature. Upgrade to unlock unlimited voice playback.');
       return false;
     }
 

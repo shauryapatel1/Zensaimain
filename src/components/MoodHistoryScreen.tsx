@@ -16,10 +16,15 @@ import {
   Clock,
   TrendingUp,
   Eye,
-  BarChart3
+  BarChart3,
+  Sparkles,
+  Crown
 } from 'lucide-react';
 import { useJournal } from '../hooks/useJournal';
 import { useAuth } from '../contexts/AuthContext';
+import Logo from './Logo';
+import { usePremium } from '../hooks/usePremium';
+import UpsellModal from './UpsellModal';
 import LottieAvatar from './LottieAvatar';
 import MoodSelector from './MoodSelector';
 import { MoodLevel } from '../types';
@@ -37,6 +42,7 @@ interface JournalEntry {
   updated_at: string;
   photo_url?: string;
   photo_filename?: string;
+  title?: string;
 }
 
 interface GroupedEntries {
@@ -45,6 +51,7 @@ interface GroupedEntries {
 
 export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
   const { user } = useAuth();
+  const { isPremium, isUpsellModalOpen, upsellContent, showUpsellModal, hideUpsellModal } = usePremium();
   const { entries, isLoading, error, deleteEntry, updateEntry } = useJournal();
   
   // State management
@@ -55,11 +62,17 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
   const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
   const [editContent, setEditContent] = useState('');
+  const [editTitle, setEditTitle] = useState('');
   const [editMood, setEditMood] = useState<MoodLevel>(3);
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   
   const ENTRIES_PER_PAGE = 10;
+  
+  // Check if we need to show the history limit message
+  const showHistoryLimitMessage = !isPremium && entries.length > 0 && 
+    (entries.length >= 30 || 
+     (new Date().getTime() - new Date(entries[entries.length - 1].created_at).getTime()) / (1000 * 60 * 60 * 24) >= 30);
 
   // Helper functions
   const getMoodLevel = (moodString: string): MoodLevel => {
@@ -177,6 +190,7 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
   const handleEditEntry = (entry: JournalEntry) => {
     setEditingEntry(entry);
     setEditContent(entry.content);
+    setEditTitle(entry.title || '');
     setEditMood(getMoodLevel(entry.mood));
     setSelectedEntry(null);
   };
@@ -185,10 +199,16 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
     if (!editingEntry) return;
 
     try {
-      const result = await updateEntry(editingEntry.id, editContent, editMood);
+      const result = await updateEntry(
+        editingEntry.id, 
+        editContent, 
+        editTitle || null, 
+        editMood
+      );
       if (result.success) {
         setEditingEntry(null);
         setEditContent('');
+        setEditTitle('');
       }
     } catch (err) {
       console.error('Failed to update entry:', err);
@@ -292,18 +312,14 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
             </button>
             
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
-                <LottieAvatar mood={4} size="sm" variant="greeting" animate={false} />
-              </div>
-              <div>
-                <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200 flex items-center">
-                  <BarChart3 className="w-5 h-5 mr-2 text-zen-mint-500" />
-                  Journal Dashboard
-                </h1>
-                <p className="text-xs text-zen-sage-600 dark:text-gray-400">
-                  {filteredEntries.length} of {entries.length} entries
-                </p>
-              </div>
+              <Logo size="sm" className="mr-1" />
+              <h1 className="font-display font-bold text-zen-sage-800 dark:text-gray-200 flex items-center">
+                <BarChart3 className="w-5 h-5 mr-2 text-zen-mint-500" />
+                Journal Dashboard
+              </h1>
+              <p className="text-xs text-zen-sage-600 dark:text-gray-400">
+                {filteredEntries.length} of {entries.length} entries
+              </p>
             </div>
           </div>
 
@@ -486,6 +502,98 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
           </div>
         </motion.div>
 
+        {/* Advanced Analytics Section (Premium Feature) */}
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20 dark:border-gray-600/20">
+            <h2 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-4 flex items-center space-x-2">
+              <Sparkles className="w-5 h-5 text-zen-mint-500" />
+              <span>Advanced Analytics</span>
+              {!isPremium && (
+                <span className="text-xs font-normal text-zen-peach-500 bg-zen-peach-100 dark:bg-zen-peach-900/30 px-2 py-1 rounded-full">
+                  Premium
+                </span>
+              )}
+            </h2>
+            
+            {isPremium ? (
+              <div className="text-center py-8">
+                <Sparkles className="w-12 h-12 text-zen-mint-400 mx-auto mb-4 opacity-70" />
+                <h3 className="text-xl font-display font-semibold text-zen-sage-800 dark:text-gray-200 mb-2">
+                  Advanced Insights Coming Soon
+                </h3>
+                <p className="text-zen-sage-600 dark:text-gray-400 max-w-md mx-auto">
+                  We're working on detailed mood trends, sentiment analysis, and AI-generated summaries of your emotional patterns.
+                </p>
+              </div>
+            ) : (
+              <div className="bg-gradient-to-r from-zen-mint-50 to-zen-lavender-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-full flex-shrink-0">
+                    <Crown className="w-6 h-6 text-yellow-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-2">
+                      Unlock Advanced Analytics
+                    </h3>
+                    <p className="text-zen-sage-600 dark:text-gray-400 mb-4">
+                      Upgrade to Zensai Premium to access detailed mood trends, sentiment analysis, and AI-generated insights about your emotional patterns.
+                    </p>
+                    <button
+                      onClick={() => showUpsellModal({
+                        featureName: 'Advanced Analytics',
+                        featureDescription: 'Gain deeper insights into your emotional patterns with detailed mood trends and AI-powered analysis.'
+                      })}
+                      className="px-4 py-2 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white rounded-xl hover:from-zen-mint-500 hover:to-zen-mint-600 transition-colors shadow-md"
+                    >
+                      Upgrade to Premium
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Premium History Limit Message */}
+        {showHistoryLimitMessage && (
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="bg-gradient-to-r from-zen-peach-100 to-zen-lavender-100 dark:from-gray-700 dark:to-gray-600 rounded-3xl p-6 shadow-xl border border-zen-peach-200 dark:border-gray-600">
+              <div className="flex items-start space-x-4">
+                <div className="bg-white/80 dark:bg-gray-800/80 p-3 rounded-full flex-shrink-0">
+                  <Crown className="w-6 h-6 text-yellow-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-2">
+                    Unlock Your Full Journal History
+                  </h3>
+                  <p className="text-zen-sage-600 dark:text-gray-400 mb-4">
+                    Free accounts can only access the last 30 days or 30 entries. Upgrade to Zensai Premium to unlock your complete journal history and insights.
+                  </p>
+                  <button
+                    onClick={() => showUpsellModal({
+                      featureName: 'Complete Journal History',
+                      featureDescription: 'Access your entire journaling history without limits.'
+                    })}
+                    className="px-4 py-2 bg-gradient-to-r from-zen-mint-400 to-zen-mint-500 text-white rounded-xl hover:from-zen-mint-500 hover:to-zen-mint-600 transition-colors shadow-md"
+                  >
+                    Upgrade to Premium
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Entries Timeline */}
         <div className="space-y-8">
           {paginatedDates.length === 0 ? (
@@ -539,109 +647,162 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
                           {formatDate(dayEntries[0].created_at)}
                         </h3>
                         <p className="text-sm text-zen-sage-600 dark:text-gray-400">
-                          {dayEntries.length} {dayEntries.length === 1 ? 'entry' : 'entries'} • 
-                          Average mood: {dayMoodData?.label}
+                          {dayEntries.length} {dayEntries.length === 1 ? 'entry' : 'entries'} • Average mood: {dayMoodData?.label}
                         </p>
                       </div>
                     </div>
-                    <div className="flex-1 h-px bg-gradient-to-r from-zen-sage-200 dark:from-gray-600 to-transparent" />
                   </div>
 
                   {/* Entries for this date */}
                   <div className="space-y-4 ml-8">
                     {dayEntries.map((entry, entryIndex) => {
-                      const entryMood = getMoodLevel(entry.mood);
-                      const entryMoodData = moods.find(m => m.level === entryMood);
+                      const entryMoodData = moods.find(m => m.level === getMoodLevel(entry.mood));
                       const isExpanded = expandedEntry === entry.id;
-                      const previewLength = 150;
-                      const needsExpansion = entry.content.length > previewLength;
+                      const isEditing = editingEntry?.id === entry.id;
 
                       return (
                         <motion.div
                           key={entry.id}
-                          className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 dark:border-gray-600/20 hover:shadow-xl transition-all duration-300"
+                          className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 dark:border-gray-600/20 overflow-hidden"
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: (dateIndex * 0.1) + (entryIndex * 0.05) }}
-                          whileHover={{ y: -2 }}
+                          transition={{ delay: entryIndex * 0.05 }}
+                          whileHover={{ scale: 1.01 }}
                         >
-                          {/* Entry Header */}
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center space-x-3">
-                              <div className="text-2xl">{entryMoodData?.emoji}</div>
-                              <div>
-                                <div className="flex items-center space-x-2">
-                                  <Clock className="w-4 h-4 text-zen-sage-400 dark:text-gray-500" />
-                                  <span className="text-sm font-medium text-zen-sage-600 dark:text-gray-400">
-                                    {formatTime(entry.created_at)}
-                                  </span>
-                                  <span className="text-xs text-zen-sage-400 dark:text-gray-500">•</span>
-                                  <span className="text-sm text-zen-sage-600 dark:text-gray-400">
-                                    {entryMoodData?.label}
-                                  </span>
+                          {isEditing ? (
+                            /* Edit Mode */
+                            <div className="p-6">
+                              <div className="flex items-center justify-between mb-4">
+                                <h4 className="font-display font-semibold text-zen-sage-800 dark:text-gray-200">
+                                  Edit Entry
+                                </h4>
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={handleSaveEdit}
+                                    className="p-2 text-zen-mint-600 hover:text-zen-mint-700 hover:bg-zen-mint-100 dark:hover:bg-zen-mint-900/30 rounded-lg transition-colors"
+                                  >
+                                    <Save className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingEntry(null)}
+                                    className="p-2 text-zen-sage-500 hover:text-zen-sage-700 hover:bg-zen-sage-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
                                 </div>
-                                <p className="text-xs text-zen-sage-500 dark:text-gray-500 mt-1">
-                                  {entry.content.split(' ').length} words
-                                </p>
+                              </div>
+
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
+                                    Title (optional)
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={editTitle}
+                                    onChange={(e) => setEditTitle(e.target.value)}
+                                    placeholder="Add a title to your entry..."
+                                    className="w-full px-4 py-2 border border-zen-sage-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent bg-white/70 dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
+                                    How are you feeling?
+                                  </label>
+                                  <MoodSelector
+                                    selectedMood={editMood}
+                                    onMoodSelect={setEditMood}
+                                    size="md"
+                                    layout="horizontal"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-2">
+                                    Your thoughts
+                                  </label>
+                                  <textarea
+                                    value={editContent}
+                                    onChange={(e) => setEditContent(e.target.value)}
+                                    rows={6}
+                                    className="w-full px-4 py-3 border border-zen-sage-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent bg-white/70 dark:bg-gray-700 text-zen-sage-800 dark:text-gray-200 resize-none"
+                                    placeholder="What's on your mind?"
+                                  />
+                                </div>
                               </div>
                             </div>
-                            
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => setSelectedEntry(entry)}
-                                className="p-2 text-zen-sage-500 dark:text-gray-400 hover:text-zen-mint-600 hover:bg-zen-mint-100 dark:hover:bg-zen-mint-900/30 rounded-lg transition-all"
-                                title="View full entry"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleEditEntry(entry)}
-                                className="p-2 text-zen-sage-500 dark:text-gray-400 hover:text-zen-mint-600 hover:bg-zen-mint-100 dark:hover:bg-zen-mint-900/30 rounded-lg transition-all"
-                                title="Edit entry"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteEntry(entry.id)}
-                                className="p-2 text-zen-sage-500 dark:text-gray-400 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all"
-                                title="Delete entry"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                          
-                          {/* Entry Content */}
-                          <div className="text-zen-sage-700 dark:text-gray-300 leading-relaxed">
-                            <p className="whitespace-pre-wrap">
-                              {isExpanded || !needsExpansion
-                                ? entry.content
-                                : `${entry.content.substring(0, previewLength)}...`
-                              }
-                            </p>
-                            
-                            {/* Photo Display */}
-                            {entry.photo_url && (
-                              <div className="mt-4">
-                                <img
-                                  src={entry.photo_url}
-                                  alt={entry.photo_filename || 'Journal photo'}
-                                  className="w-full max-w-md rounded-xl shadow-md object-cover"
-                                  style={{ maxHeight: '300px' }}
-                                />
+                          ) : (
+                            /* View Mode */
+                            <div className="p-6">
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-center space-x-3">
+                                  <div className="text-2xl">{entryMoodData?.emoji}</div>
+                                  <div>
+                                    <div className="flex items-center space-x-2">
+                                      <span className="text-sm font-medium text-zen-sage-600 dark:text-gray-400">
+                                        {formatTime(entry.created_at)}
+                                      </span>
+                                      <span className="text-xs text-zen-sage-400 dark:text-gray-500">
+                                        {entryMoodData?.label}
+                                      </span>
+                                    </div>
+                                    {entry.title && (
+                                      <h4 className="font-display font-semibold text-zen-sage-800 dark:text-gray-200 mt-1">
+                                        {entry.title}
+                                      </h4>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={() => handleEditEntry(entry)}
+                                    className="p-2 text-zen-sage-500 hover:text-zen-sage-700 hover:bg-zen-sage-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                  >
+                                    <Edit3 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteEntry(entry.id)}
+                                    className="p-2 text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => toggleEntryExpansion(entry.id)}
+                                    className="p-2 text-zen-sage-500 hover:text-zen-sage-700 hover:bg-zen-sage-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                  >
+                                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                  </button>
+                                </div>
                               </div>
-                            )}
-                            
-                            {needsExpansion && (
-                              <button
-                                onClick={() => toggleEntryExpansion(entry.id)}
-                                className="mt-3 text-zen-mint-600 hover:text-zen-mint-700 text-sm font-medium flex items-center space-x-1"
-                              >
-                                <span>{isExpanded ? 'Show less' : 'Read more'}</span>
-                                {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                              </button>
-                            )}
-                          </div>
+
+                              <div className={`text-zen-sage-700 dark:text-gray-300 leading-relaxed ${
+                                isExpanded ? '' : 'line-clamp-3'
+                              }`}>
+                                {entry.content}
+                              </div>
+
+                              {entry.photo_url && (
+                                <div className="mt-4">
+                                  <img
+                                    src={entry.photo_url}
+                                    alt="Journal entry"
+                                    className="rounded-xl max-w-full h-auto shadow-md"
+                                  />
+                                </div>
+                              )}
+
+                              {!isExpanded && entry.content.length > 150 && (
+                                <button
+                                  onClick={() => toggleEntryExpansion(entry.id)}
+                                  className="mt-3 text-zen-mint-600 hover:text-zen-mint-700 text-sm font-medium"
+                                >
+                                  Read more...
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </motion.div>
                       );
                     })}
@@ -655,196 +816,57 @@ export default function MoodHistoryScreen({ onBack }: MoodHistoryScreenProps) {
         {/* Pagination */}
         {totalPages > 1 && (
           <motion.div
-            className="flex justify-center items-center space-x-4 mt-8"
+            className="mt-12 flex justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="px-4 py-2 bg-white/80 dark:bg-gray-800/80 text-zen-sage-600 dark:text-gray-400 rounded-xl hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              Previous
-            </button>
-            
-            <div className="flex space-x-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`w-10 h-10 rounded-xl font-medium transition-all ${
-                    currentPage === page
-                      ? 'bg-zen-mint-400 text-white'
-                      : 'bg-white/80 dark:bg-gray-800/80 text-zen-sage-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              
+              <div className="flex space-x-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === page
+                        ? 'bg-zen-mint-400 text-white'
+                        : 'text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 hover:bg-zen-sage-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
             </div>
-            
-            <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-white/80 dark:bg-gray-800/80 text-zen-sage-600 dark:text-gray-400 rounded-xl hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              Next
-            </button>
           </motion.div>
         )}
       </div>
 
-      {/* Entry Detail Modal */}
-      <AnimatePresence>
-        {selectedEntry && (
-          <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedEntry(null)}
-          >
-            <motion.div
-              className="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center space-x-3">
-                  <div className="text-3xl">
-                    {moods.find(m => m.level === getMoodLevel(selectedEntry.mood))?.emoji}
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-display font-bold text-zen-sage-800 dark:text-gray-200">
-                      {formatDate(selectedEntry.created_at)}
-                    </h2>
-                    <p className="text-zen-sage-600 dark:text-gray-400">
-                      {formatTime(selectedEntry.created_at)} • 
-                      {moods.find(m => m.level === getMoodLevel(selectedEntry.mood))?.label}
-                    </p>
-                  </div>
-                </div>
-                
-                <button
-                  onClick={() => setSelectedEntry(null)}
-                  className="text-zen-sage-400 dark:text-gray-500 hover:text-zen-sage-600 dark:hover:text-gray-300 text-2xl"
-                >
-                  ×
-                </button>
-              </div>
-              
-              <div className="prose prose-zen max-w-none mb-6">
-                <p className="text-zen-sage-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                  {selectedEntry.content}
-                </p>
-                
-                {/* Photo Display in Modal */}
-                {selectedEntry.photo_url && (
-                  <div className="mt-6">
-                    <img
-                      src={selectedEntry.photo_url}
-                      alt={selectedEntry.photo_filename || 'Journal photo'}
-                      className="w-full rounded-xl shadow-lg object-cover"
-                      style={{ maxHeight: '400px' }}
-                    />
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex justify-end space-x-3 pt-4 border-t border-zen-sage-200 dark:border-gray-600">
-                <button
-                  onClick={() => handleEditEntry(selectedEntry)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-zen-mint-400 text-white rounded-xl hover:bg-zen-mint-500 transition-colors"
-                >
-                  <Edit3 className="w-4 h-4" />
-                  <span>Edit</span>
-                </button>
-                <button
-                  onClick={() => handleDeleteEntry(selectedEntry.id)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-red-400 text-white rounded-xl hover:bg-red-500 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span>Delete</span>
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Edit Entry Modal */}
-      <AnimatePresence>
-        {editingEntry && (
-          <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-            >
-              <h2 className="text-xl font-display font-bold text-zen-sage-800 dark:text-gray-200 mb-6">
-                Edit Journal Entry
-              </h2>
-              
-              {/* Mood Selector */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-3">
-                  How were you feeling?
-                </label>
-                <MoodSelector
-                  selectedMood={editMood}
-                  onMoodSelect={setEditMood}
-                  size="md"
-                  layout="horizontal"
-                />
-              </div>
-              
-              {/* Content Editor */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-zen-sage-700 dark:text-gray-300 mb-3">
-                  Your thoughts
-                </label>
-                <textarea
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  className="w-full h-48 p-4 border border-zen-sage-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-zen-mint-400 focus:border-transparent resize-none text-zen-sage-800 dark:text-gray-200 leading-relaxed bg-white dark:bg-gray-700"
-                  placeholder="Edit your journal entry..."
-                />
-                <div className="flex justify-between items-center mt-2">
-                  <p className="text-xs text-zen-sage-500 dark:text-gray-400">
-                    {editContent.length} characters • {editContent.split(' ').filter(word => word.length > 0).length} words
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={() => setEditingEntry(null)}
-                  className="px-6 py-2 text-zen-sage-600 dark:text-gray-400 hover:text-zen-sage-800 dark:hover:text-gray-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveEdit}
-                  disabled={!editContent.trim()}
-                  className="flex items-center space-x-2 px-6 py-2 bg-zen-mint-400 text-white rounded-xl hover:bg-zen-mint-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>Save Changes</span>
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Upsell Modal */}
+      {isUpsellModalOpen && upsellContent && (
+        <UpsellModal
+          isOpen={isUpsellModalOpen}
+          onClose={hideUpsellModal}
+          featureName={upsellContent.featureName}
+          featureDescription={upsellContent.featureDescription}
+        />
+      )}
     </div>
   );
 }

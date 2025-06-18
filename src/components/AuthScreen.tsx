@@ -4,6 +4,7 @@ import { Mail, Lock, User, Heart, Sparkles, AlertCircle, CheckCircle, Eye, EyeOf
 import { useAuth } from '../contexts/AuthContext';
 import { validateForm } from '../utils/validation';
 import { useNavigate } from 'react-router-dom';
+import Logo from './Logo';
 import LottieAvatar from './LottieAvatar';
 
 export default function AuthScreen() {
@@ -166,13 +167,9 @@ export default function AuthScreen() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg bg-white/20 backdrop-blur-sm">
-          <LottieAvatar mood={4} size="sm" variant="greeting" animate={false} />
-        </div>
-        <div>
-          <h1 className="font-display font-bold text-zen-sage-800">Zensai</h1>
-          <p className="text-xs text-zen-sage-600">with Zeno</p>
-        </div>
+        <Logo size="sm" />
+        <h1 className="font-display font-bold text-zen-sage-800">Zensai</h1>
+        <p className="text-xs text-zen-sage-600">with Zeno</p>
       </motion.div>
 
       {/* Success Message */}
@@ -240,12 +237,12 @@ export default function AuthScreen() {
           {/* Header with Zeno */}
           <div className="text-center mb-8">
             <motion.div
-              className="flex justify-center mb-6"
+              className="flex justify-center mb-4"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             >
-              <LottieAvatar mood={4} size="lg" variant="greeting" />
+              <Logo size="lg" />
             </motion.div>
             
             <motion.h1

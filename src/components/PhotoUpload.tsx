@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, X, Upload, Image as ImageIcon } from 'lucide-react';
 
 interface PhotoUploadProps {
+  isPremiumUser?: boolean;
+  onUpsellTrigger?: () => void;
   onPhotoSelect: (file: File | null) => void;
   currentPhoto?: string | null;
   disabled?: boolean;
@@ -10,6 +12,8 @@ interface PhotoUploadProps {
 }
 
 export default function PhotoUpload({ 
+  isPremiumUser = true,
+  onUpsellTrigger,
   onPhotoSelect, 
   currentPhoto, 
   disabled = false, 
@@ -19,7 +23,14 @@ export default function PhotoUpload({
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const isFeatureDisabled = !isPremiumUser || disabled;
+
   const handleFileSelect = (file: File | null) => {
+    if (!isPremiumUser) {
+      if (onUpsellTrigger) onUpsellTrigger();
+      return;
+    }
+
     if (!file) {
       setPreview(null);
       onPhotoSelect(null);
@@ -57,7 +68,10 @@ export default function PhotoUpload({
     e.preventDefault();
     setIsDragging(false);
     
-    if (disabled) return;
+    if (isFeatureDisabled) {
+      if (!isPremiumUser && onUpsellTrigger) onUpsellTrigger();
+      return;
+    }
     
     const file = e.dataTransfer.files[0];
     if (file) {
@@ -67,7 +81,7 @@ export default function PhotoUpload({
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    if (!disabled) {
+    if (!isFeatureDisabled) {
       setIsDragging(true);
     }
   };
@@ -86,7 +100,12 @@ export default function PhotoUpload({
   };
 
   const openFileDialog = () => {
-    if (!disabled && fileInputRef.current) {
+    if (isFeatureDisabled) {
+      if (!isPremiumUser && onUpsellTrigger) onUpsellTrigger();
+      return;
+    }
+    
+    if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
@@ -99,7 +118,7 @@ export default function PhotoUpload({
         accept="image/*"
         onChange={handleInputChange}
         className="hidden"
-        disabled={disabled}
+        disabled={isFeatureDisabled}
       />
 
       <AnimatePresence mode="wait">
@@ -150,12 +169,12 @@ export default function PhotoUpload({
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.3 }}
             className={`
-              relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 cursor-pointer
+              relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${!isFeatureDisabled ? 'cursor-pointer' : 'cursor-not-allowed'}
               ${isDragging 
                 ? 'border-zen-mint-400 bg-zen-mint-50' 
                 : 'border-zen-sage-300 hover:border-zen-mint-400 hover:bg-zen-mint-50/50'
               }
-              ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+              ${isFeatureDisabled ? 'opacity-50' : ''}
             `}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -178,9 +197,15 @@ export default function PhotoUpload({
                 <p className="font-medium text-zen-sage-700 mb-1">
                   {isDragging ? 'Drop your photo here' : 'Add a photo to your entry'}
                 </p>
-                <p className="text-sm text-zen-sage-500">
-                  Drag & drop or click to browse • Max 5MB
-                </p>
+                {!isPremiumUser ? (
+                  <p className="text-sm text-zen-peach-500 font-medium">
+                    Premium feature • Upgrade to add photos
+                  </p>
+                ) : (
+                  <p className="text-sm text-zen-sage-500">
+                    Drag & drop or click to browse • Max 5MB
+                  </p>
+                )}
               </div>
             </div>
           </motion.div>

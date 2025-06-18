@@ -3,9 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import Footer from '../components/Footer';
 import AuthScreen from './components/AuthScreen';
 import AuthenticatedApp from './components/AuthenticatedApp';
 import LandingPage from './components/LandingPage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
 
 function AppContent() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -79,12 +82,41 @@ function AppContent() {
           } 
         />
         <Route 
+          path="/privacy" 
+          element={
+            <motion.div
+              key="privacy"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <PrivacyPage />
+            </motion.div>
+          } 
+        />
+        <Route 
+          path="/terms" 
+          element={
+            <motion.div
+              key="terms"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <TermsPage />
+            </motion.div>
+          } 
+        />
+        <Route 
           path="/" 
           element={
             <Navigate to={isAuthenticated ? "/home" : "/landing"} replace />
           } 
         />
       </Routes>
+      <Footer />
     </AnimatePresence>
   );
 }

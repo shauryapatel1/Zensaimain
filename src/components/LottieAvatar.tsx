@@ -16,6 +16,7 @@ interface LottieAvatarProps {
   variant?: 'idle' | 'greeting' | 'journaling' | 'typing' | 'coding' | 'music';
   animate?: boolean;
   'aria-label'?: string;
+  className?: string;
 }
 
 export default function LottieAvatar({ 
@@ -23,6 +24,7 @@ export default function LottieAvatar({
   size = 'md', 
   variant = 'idle',
   animate = true,
+  className = '',
   'aria-label': ariaLabel
 }: LottieAvatarProps) {
   const sizeClasses = {
@@ -77,6 +79,7 @@ export default function LottieAvatar({
   return (
     <motion.div
       className={`${sizeClasses[size]} relative flex items-center justify-center ${getMoodStyling()}`}
+      className={`${sizeClasses[size]} relative flex items-center justify-center ${getMoodStyling()} ${className}`}
       role="img"
       aria-label={ariaLabel || `Zeno the fox in ${variant} mode, feeling ${mood >= 4 ? 'happy' : mood <= 2 ? 'contemplative' : 'neutral'}`}
       animate={animate ? {

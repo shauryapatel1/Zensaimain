@@ -10,6 +10,7 @@ interface JournalEntry {
   mood: string;
   photo_url: string | null;
   photo_filename: string | null;
+  title: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -22,17 +23,20 @@ interface Profile {
   last_entry_date: string | null;
   journaling_goal_frequency: number;
   total_badges_earned: number;
+  subscription_status: string;
+  subscription_tier: string;
+  subscription_expires_at: string | null;
   created_at: string;
   updated_at: string;
 }
 
 interface Badge {
   id: string;
-  name: string;
-  description: string;
-  icon: string;
-  category: string;
-  rarity: string;
+  badge_name: string;
+  badge_description: string;
+  badge_icon: string;
+  badge_category: string;
+  badge_rarity: string;
   earned: boolean;
   earned_at: string | null;
   progress_current: number;
@@ -47,6 +51,10 @@ export function useJournal() {
   const [badges, setBadges] = useState<Badge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Calculate premium status directly from profile
+  const isPremium = profile?.subscription_status === 'premium' && 
+    (!profile?.subscription_expires_at || new Date(profile.subscription_expires_at) > new Date());
 
   // Load user profile and entries
   useEffect(() => {
@@ -84,12 +92,28 @@ export function useJournal() {
       setProfile(profileData);
 
       // Load recent journal entries
-      const { data: entriesData, error: entriesError } = await supabase
+      // For free users, limit to 30 days or 30 entries
+      let query = supabase
         .from('journal_entries')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(100);
+        .order('created_at', { ascending: false });
+      
+      // Check premium status from the loaded profile data
+      const userIsPremium = profileData?.subscription_status === 'premium' && 
+        (!profileData?.subscription_expires_at || new Date(profileData.subscription_expires_at) > new Date());
+      
+      if (!userIsPremium) {
+        // Get entries from the last 30 days or the most recent 30 entries
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        query = query
+          .gt('created_at', thirtyDaysAgo.toISOString())
+          .limit(30);
+      }
+
+      const { data: entriesData, error: entriesError } = await query;
 
       if (entriesError) {
         console.error('Error loading entries:', entriesError);
@@ -164,6 +188,7 @@ export function useJournal() {
 
   const addEntry = async (
     content: string, 
+    title: string | null,
     mood: MoodLevel, 
     photoFile?: File
   ): Promise<{ success: boolean; error?: string }> => {
@@ -173,6 +198,11 @@ export function useJournal() {
 
     if (!content.trim()) {
       return { success: false, error: 'Entry content cannot be empty' };
+    }
+
+    // Check if photo uploads are allowed for free users
+    if (photoFile && !isPremium) {
+      return { success: false, error: 'Photo uploads are a premium feature. Please upgrade to add photos to your entries.' };
     }
 
     try {
@@ -224,6 +254,7 @@ export function useJournal() {
         .insert({
           user_id: user.id,
           content: content.trim(),
+          title: title?.trim() || null,
           mood: moodString,
           photo_url: photoUrl,
           photo_filename: photoFilename
@@ -289,6 +320,7 @@ export function useJournal() {
   const updateEntry = async (
     entryId: string, 
     content: string, 
+    title: string | null,
     mood: MoodLevel, 
     photoFile?: File,
     removePhoto?: boolean
@@ -299,6 +331,11 @@ export function useJournal() {
 
     if (!content.trim()) {
       return { success: false, error: 'Entry content cannot be empty' };
+    }
+
+    // Check if photo uploads are allowed for free users
+    if (photoFile && !isPremium) {
+      return { success: false, error: 'Photo uploads are a premium feature. Please upgrade to add photos to your entries.' };
     }
 
     try {
@@ -376,6 +413,7 @@ export function useJournal() {
       // Prepare update data
       const updateData: any = {
         content: content.trim(),
+        title: title?.trim() || null,
         mood: moodString,
         updated_at: new Date().toISOString()
       };
@@ -404,6 +442,7 @@ export function useJournal() {
           ? { 
               ...entry, 
               content: content.trim(), 
+              title: title?.trim() || null,
               mood: moodString, 
               updated_at: new Date().toISOString(),
               ...(removePhoto || photoFile ? { photo_url: photoUrl, photo_filename: photoFilename } : {})
@@ -476,6 +515,7 @@ export function useJournal() {
     badges,
     isLoading,
     error,
+    isPremium,
     addEntry,
     updateEntry,
     deleteEntry,
